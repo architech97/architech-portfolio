@@ -1743,6 +1743,25 @@ html.js .pipeline.is-revealed > li::before {
   html { scroll-snap-type: y proximity; }
 }
 
+/* Short desktop/laptop viewports: slides must never clip content — grow and
+   soften the snap instead (same escape as the narrow-width rule above). */
+@media (max-height: 940px) {
+  .slide {
+    height: auto;
+    min-height: 100svh;
+    max-height: none;
+    overflow: visible;
+  }
+  .slide-frame { overflow: visible; max-height: none; }
+  html { scroll-snap-type: y proximity; }
+}
+@media (max-height: 820px) {
+  .stat { padding: 16px 18px 13px; }
+  .stat b { font-size: clamp(1.4rem, 2.4vw, 1.9rem); }
+  #system .slide-frame { gap: 10px; }
+  .sec-head h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); }
+}
+
 @media (max-width: 920px) {
   .slide-rail { display: none; }
   .nav-toggle { display: inline-flex; }
