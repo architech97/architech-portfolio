@@ -25,9 +25,9 @@
       audio.ctx = new AudioCtor();
       // Master chain: pad bus + sfx bus → soft limiter feel
       audio.master = audio.ctx.createGain();
-      audio.master.gain.value = 0.78;
+      audio.master.gain.value = 0.62;
       audio.sfx = audio.ctx.createGain();
-      audio.sfx.gain.value = 1.35;
+      audio.sfx.gain.value = 0.72;
       const soft = audio.ctx.createDynamicsCompressor();
       soft.threshold.value = -18;
       soft.knee.value = 18;
@@ -138,7 +138,7 @@
       blip(f, 0.35 + Math.random() * 0.25, 0.0035 + Math.random() * 0.0025, 'sine', f * 1.25);
     }, 9000);
 
-    bed.gain.linearRampToValueAtTime(0.34, ctx.currentTime + 3.5);
+    bed.gain.linearRampToValueAtTime(0.24, ctx.currentTime + 3.5);
     audio.ambience = {
       bed,
       stop: () => {
@@ -227,17 +227,21 @@
     });
   }
 
+  document.addEventListener('visibilitychange', () => {
+    if (!audio.ctx || !audio.enabled) return;
+    if (document.hidden) audio.ctx.suspend();
+    else audio.ctx.resume();
+  });
+
   // Layered interaction sounds — hover soft, click decisive
   const HOVER_SEL = '.js-audio-hit, .card, .stat, .stat.primary, .vision-points li, .gate, .pl-stage, .marquee-track span, .tb-cell, .proof-card, .case-cinema-main, .btn, .say-list li';
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   document.querySelectorAll(HOVER_SEL).forEach((el) => {
-    el.addEventListener('pointerenter', () => hoverTone());
-    el.addEventListener('click', () => {
-      if (el.matches('[data-sound-toggle]') || el.matches('[data-nav-toggle]')) return;
-      if (el.classList.contains('gate')) {
-        const i = parseInt(el.textContent.replace(/\D/g, ''), 10) || 0;
-        gateTone(i);
-        return;
-      }
+    if (canHover) el.addEventListener('pointerenter', hoverTone);
+    el.addEventListener('click', (event) => {
+      const owner = event.target.closest(HOVER_SEL);
+      if (owner !== el) return;
+      if (el.matches('[data-sound-toggle], [data-nav-toggle], .gate, .say-list li')) return;
       clickTone();
     });
   });
@@ -252,6 +256,7 @@
     if (!toggle || !nav) return;
 
     const setOpen = (open) => {
+      document.documentElement.classList.toggle('nav-lock', open);
       document.body.classList.toggle('nav-open', open);
       document.body.classList.toggle('nav-lock', open);
       toggle.setAttribute('aria-expanded', String(open));
@@ -473,7 +478,7 @@
       pointerX: 0, pointerY: 0,
       dragging: false, dragVel: 0,
       running: false, frame: 0, visible: true,
-      lastT: 0, scanY: 0,
+      lastT: 0, lastDraw: 0, scanY: 0,
     };
 
     function project(x, y, z, f, cx, cy) {
@@ -646,9 +651,11 @@
       ctx2d.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
       ctx2d.clearRect(0, 0, w, h);
 
-      const f = (h * (opts.fill || 0.62) * D) / MH;
-      const cx = w * (w < 760 ? 0.5 : (opts.cx ?? 0.64));
-      const cy = h * (opts.cy ?? 0.52);
+      const phone = w < 760;
+      const fill = phone ? (opts.mobileFill ?? opts.fill ?? 0.62) : (opts.fill ?? 0.62);
+      const f = (h * fill * D) / MH;
+      const cx = w * (phone ? (opts.mobileCx ?? 0.5) : (opts.cx ?? 0.64));
+      const cy = h * (phone ? (opts.mobileCy ?? opts.cy ?? 0.52) : (opts.cy ?? 0.52));
       const animate = !reducedMotion();
       const isConstruct = !!(opts.construct || opts.film);
 
@@ -851,7 +858,11 @@
 
     function render(time) {
       if (!state.running) return;
-      draw(time);
+      const frameMs = state.width < 760 ? 1000 / 30 : 0;
+      if (!frameMs || time - state.lastDraw >= frameMs) {
+        state.lastDraw = time;
+        draw(time);
+      }
       state.frame = window.requestAnimationFrame(render);
     }
 
@@ -872,7 +883,8 @@
       const bounds = canvas.getBoundingClientRect();
       state.width = Math.max(1, bounds.width);
       state.height = Math.max(1, bounds.height);
-      state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const maxDpr = state.width < 760 ? 1.25 : 2;
+      state.dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
       canvas.width = Math.round(state.width * state.dpr);
       canvas.height = Math.round(state.height * state.dpr);
       draw(performance.now());
@@ -961,6 +973,7 @@
     model: DEMO_TOWER,
     solid: true,
     yaw: 0.8, drift: 0.035, cx: 0.7, cy: 0.52, fill: 0.88,
+    mobileCx: 0.66, mobileCy: 0.63, mobileFill: 0.70,
     parallax: true,
     construct: true,
     constructCycle: 20000,
@@ -976,16 +989,21 @@
 
   // Twin — generic building assembled through one shared stage path
   const TWIN_STAGES = ['STRUCTURE', 'FLOOR PLATES', 'ENVELOPE', 'SYSTEMS', 'VERIFIED'];
+  let lastTwinIndex = -1;
+  let lastTwinLevel = -1;
 
   function setTwinStage(state) {
     const progress = reducedMotion() ? 1 : clamp(state.buildP || 0, 0, 1);
     const index = clamp(Math.floor(progress * TWIN_STAGES.length), 0, TWIN_STAGES.length - 1);
+    const level = clamp(Math.ceil(progress * 7), 1, 7);
+    if (index === lastTwinIndex && level === lastTwinLevel) return;
     const label = TWIN_STAGES[index];
     const statusEl = document.getElementById('twin-build-status');
     const layerEl = document.getElementById('twin-layer');
     const levelEl = document.getElementById('twin-level');
     const elevEl = document.getElementById('twin-elev');
-    const level = clamp(Math.ceil(progress * 7), 1, 7);
+    lastTwinIndex = index;
+    lastTwinLevel = level;
     if (statusEl) statusEl.textContent = label;
     if (layerEl) layerEl.textContent = label;
     if (levelEl) levelEl.textContent = 'L.' + String(level).padStart(2, '0');
@@ -999,6 +1017,7 @@
     model: DEMO_BUILDING,
     solid: true,
     yaw: 0.52, drift: 0.03, cx: 0.69, cy: 0.54, fill: 0.74,
+    mobileCx: 0.58, mobileCy: 0.62, mobileFill: 0.58,
     orbit: true,
     construct: true,
     constructCycle: 20000,
@@ -1030,7 +1049,7 @@
     onFrame(state) {
       if (!filmProgressEl || state.filmT === undefined) return;
       const t = state.filmT;
-      filmProgressEl.style.width = (t * 100).toFixed(1) + '%';
+      filmProgressEl.style.transform = 'scaleX(' + t.toFixed(4) + ')';
       const idx = clamp(Math.floor(t * 3), 0, FILM_CHAPTERS.length - 1);
       if (idx !== filmChapter) {
         filmChapter = idx;
