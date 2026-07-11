@@ -400,6 +400,16 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   to { background-position: 0 0, 0 0, 0 0, 100% 60%; }
 }
 
+/* Seam melt: every imaged slide dissolves into the canvas black at its top and
+   bottom edges, so slide boundaries can never read as a lighter band — additive
+   to each section's own grade overrides. */
+.sec::after,
+.vision::after {
+  box-shadow:
+    inset 0 130px 80px -50px #02040c,
+    inset 0 -130px 80px -50px #02040c;
+}
+
 /* S.01 Builder */
 #system {
   --bg-x: 58%;
