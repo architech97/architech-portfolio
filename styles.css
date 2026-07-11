@@ -1738,6 +1738,9 @@ html.js .pipeline.is-revealed > li::before {
   .cards { grid-template-columns: repeat(2, 1fr); }
   .card.feature { grid-column: span 2; grid-row: auto; }
   .case-cinema { grid-template-columns: 1fr; }
+  /* Stacked side cards size to their own content — flex:1 equal-height only
+     makes sense next to the tall main card, and crops the taller card here. */
+  .proof-card { flex: 0 0 auto; }
   .case-metrics { grid-template-columns: repeat(2, 1fr); }
   .gates-grid { grid-template-columns: 1fr; }
   #gates::before { background-position: 78% 48%; }
