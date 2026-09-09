@@ -26,6 +26,7 @@
   --mono: "Cascadia Code", "Cascadia Mono", Consolas, "IBM Plex Mono", monospace;
   --ease: cubic-bezier(.16, 1, .3, 1);
   --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-in: cubic-bezier(.12, 0, .39, 0);
   --wrap: min(1180px, calc(100vw - clamp(40px, 5vw, 88px)));
   --sec-gap: clamp(28px, 4.5vh, 48px);
   --topbar-h: 64px;
@@ -361,9 +362,8 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   /* Gentle scale: enough for parallax, not a crop-in */
   transform: translate3d(var(--bg-px), var(--bg-py), 0) scale(1.04);
   transform-origin: center center;
-  will-change: transform, background-position;
+  will-change: transform;
   transition: transform .7s var(--ease-out);
-  animation: bgKen 40s ease-in-out infinite alternate;
 }
 
 /* Shared grade: keep left/content legible, reveal model on the right */
@@ -384,20 +384,6 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
     linear-gradient(180deg, rgba(2, 4, 12, .42) 0%, transparent 16%),
     linear-gradient(115deg, transparent 40%, rgba(82, 188, 255, .04) 50%, transparent 60%);
   background-size: auto, auto, auto, 200% 200%;
-  animation: gradeSweep 14s ease-in-out infinite alternate;
-}
-
-@keyframes bgKen {
-  from {
-    background-position: calc(var(--bg-x) - 1.5%) calc(var(--bg-y) - 1%);
-  }
-  to {
-    background-position: calc(var(--bg-x) + 1.8%) calc(var(--bg-y) + 1.2%);
-  }
-}
-@keyframes gradeSweep {
-  from { background-position: 0 0, 0 0, 0 0, 0% 40%; }
-  to { background-position: 0 0, 0 0, 0 0, 100% 60%; }
 }
 
 /* Seam melt: every imaged slide dissolves into the canvas black at its top and
@@ -417,8 +403,6 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
 }
 #system::before {
   background-image: url("assets/bg-builder.jpg");
-  animation-duration: 40s;
-  animation-delay: -4s;
 }
 #system::after {
   background-image:
@@ -434,13 +418,11 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   --bg-x: 60%;
   --bg-y: 50%;
   min-height: 100svh;
-  height: 100svh;
+  height: auto;
 }
 #gates::before {
   background-image: url("assets/bg-gates.jpg");
   background-color: #02040c;
-  animation-duration: 32s;
-  animation-delay: -8s;
 }
 #gates::after {
   background-image:
@@ -458,8 +440,6 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
 }
 #toolkit::before {
   background-image: url("assets/bg-toolkit.jpg");
-  animation-duration: 38s;
-  animation-delay: -12s;
 }
 
 /* S.05 Proof */
@@ -469,8 +449,6 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
 }
 #proof::before {
   background-image: url("assets/bg-proof.jpg");
-  animation-duration: 34s;
-  animation-delay: -2s;
 }
 
 /* S.07 Title block — balanced plate (left + right architecture) */
@@ -480,8 +458,6 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
 }
 #contact::before {
   background-image: url("assets/bg-contact.jpg");
-  animation-duration: 42s;
-  animation-delay: -16s;
 }
 #contact::after {
   background-image:
@@ -512,7 +488,7 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   background: rgba(47, 155, 255, .09);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  font-size: 10px; letter-spacing: .34em; text-transform: uppercase;
+  font-size: 9px; letter-spacing: .38em; text-transform: uppercase;
   color: var(--cyan);
   clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
   box-shadow: 0 0 24px rgba(47, 155, 255, .08);
@@ -571,6 +547,36 @@ html.js [data-reveal].is-revealed {
   z-index: 0;
   display: block;
   pointer-events: none;
+}
+
+/* Scroll-as-timeline: pin the stage, scrub extra height. */
+[data-timeline] {
+  min-height: 175vh;
+  height: auto;
+  justify-content: flex-start;
+  padding: 0;
+  overflow: visible;
+}
+.timeline-pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 100svh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+#gates .timeline-pin {
+  height: auto;
+  min-height: 100svh;
+  overflow: visible;
+  justify-content: center;
+  padding:
+    calc(var(--topbar-h) + clamp(16px, 2.5vh, 32px))
+    0
+    clamp(24px, 3.5vh, 40px);
 }
 
 .hero {
@@ -650,6 +656,16 @@ html.js [data-reveal].is-revealed {
   text-shadow:
     0 0 40px rgba(47, 155, 255, .5),
     0 0 100px rgba(47, 155, 255, .22);
+}
+.hero h1 .glyph {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(.28em);
+  animation: glyphIn .7s var(--ease-out) forwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+@keyframes glyphIn {
+  to { opacity: 1; transform: none; }
 }
 
 .lede {
@@ -743,7 +759,7 @@ html.js [data-reveal].is-revealed {
   opacity: .8;
 }
 .hero-hud dt {
-  font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+  font-size: 9px; letter-spacing: .26em; text-transform: uppercase;
   color: rgba(157, 167, 186, .85); margin-bottom: 4px;
 }
 .hero-hud dd {
@@ -759,6 +775,11 @@ html.js [data-reveal].is-revealed {
   letter-spacing: .24em;
   text-transform: uppercase;
   color: rgba(82, 188, 255, .65);
+}
+.hero-build b {
+  font-weight: 500;
+  color: var(--cyan);
+  letter-spacing: .2em;
 }
 .hero-build i {
   display: inline-block;
@@ -1026,9 +1047,12 @@ html.js [data-reveal].is-revealed {
 .twin-stage {
   padding: 8px 0;
   font-size: 11px;
-  letter-spacing: .14em;
+  letter-spacing: .16em;
   color: var(--fog);
+  border-bottom: 1px solid rgba(82, 188, 255, .08);
+  transition: color .28s var(--ease);
 }
+.twin-stage.is-done { color: rgba(216, 236, 248, .72); }
 .twin-stage.is-active { color: var(--cyan); }
 .twin-hint {
   margin-top: 16px !important;
@@ -1222,8 +1246,24 @@ html.js .pipeline.is-revealed > li::before {
 .pl-rollback {
   margin-top: 16px !important;
   font-size: 10px; letter-spacing: .16em; color: var(--amber);
+  transition: color .28s var(--ease), text-shadow .28s var(--ease);
 }
 .pl-rollback::before { display: none !important; }
+.pl-rollback.is-hot,
+.pipeline.is-rollback .pl-rollback {
+  color: var(--amber);
+  text-shadow: 0 0 18px rgba(255, 180, 84, .55);
+}
+html.js .pipeline.is-rollback .gate,
+html.js .pipeline.is-rollback .gate.is-lit,
+html.js .pipeline.is-rollback .gate.is-hot,
+.gate.is-rollback {
+  color: var(--fog);
+  border-color: rgba(255, 180, 84, .55);
+  background: rgba(40, 22, 8, .55);
+  box-shadow: none;
+  transform: none;
+}
 
 /* ------------------------------------------------------------
    S.04 — Toolkit
@@ -1488,8 +1528,7 @@ html.js .pipeline.is-revealed > li::before {
   transform: translate3d(var(--bg-px), var(--bg-py), 0) scale(1.04);
   transform-origin: center center;
   transition: transform .7s var(--ease-out);
-  animation: bgKen 40s ease-in-out infinite alternate;
-  will-change: transform, background-position;
+  will-change: transform;
 }
 .vision-grade {
   position: absolute; inset: 0; z-index: 0;
@@ -1500,7 +1539,6 @@ html.js .pipeline.is-revealed > li::before {
     radial-gradient(ellipse 48% 52% at 72% 48%, rgba(47, 155, 255, .1), transparent 68%),
     linear-gradient(115deg, transparent 40%, rgba(82, 188, 255, .04) 50%, transparent 60%);
   background-size: auto, auto, auto, auto, 200% 200%;
-  animation: gradeSweep 16s ease-in-out infinite alternate;
   pointer-events: none;
 }
 .vision-inner {
@@ -1916,6 +1954,8 @@ html.js .pipeline.is-revealed > li::before {
     min-height: 100svh;
     padding: 0;
   }
+  [data-timeline] { min-height: 145vh; }
+  #gates[data-timeline] { min-height: 145vh; }
 
   .hero-inner { min-height: 100svh; }
   #system.slide { padding: 32px 0; gap: 20px; }
@@ -1999,6 +2039,15 @@ html.js .pipeline.is-revealed > li::before {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
+  }
+  .hero h1 .glyph { opacity: 1; animation: none; transform: none; }
+  [data-timeline] {
+    min-height: auto;
+  }
+  .timeline-pin {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
   }
   html.js [data-reveal],
   html.js .pipeline > li,

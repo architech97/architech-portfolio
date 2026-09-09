@@ -11,6 +11,12 @@
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const reducedMotion = () => motionQuery.matches;
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const T = window.ArchiTECHTimeline || {};
+  const saveData = !!(navigator.connection && navigator.connection.saveData);
+  const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  const quality = T.qualityTier
+    ? T.qualityTier({ saveData, coarse: coarsePointer, reduced: reducedMotion() })
+    : 'high';
 
   /* ------------------------------------------------------------
      Audio engine — nothing plays until the visitor opts in.
@@ -470,15 +476,19 @@
     const LINES = MODEL.lines;
     const SOLIDS = MODEL.solids || [];
     const MH = MODEL.h;
-    const motes = makeMotes(opts.motes || 0, MH);
+    const wantMotes = opts.motes || (opts.solid ? 18 : 0);
+    const moteCount = quality === 'low' ? 0 : quality === 'medium' ? Math.round(wantMotes * 0.4) : wantMotes;
+    const motes = makeMotes(moteCount, MH);
     const state = {
       width: 1, height: 1, dpr: 1,
       yaw: opts.yaw ?? 0.7, pitch: opts.pitch ?? 0.3,
-      yawDrift: opts.drift ?? 0.05,
+      yawDrift: opts.scrollConstruct ? 0 : (opts.drift ?? 0.05),
       pointerX: 0, pointerY: 0,
-      dragging: false, dragVel: 0,
+      dragging: false, dragVel: 0, orbitYaw: 0,
       running: false, frame: 0, visible: true,
       lastT: 0, lastDraw: 0, scanY: 0,
+      scrollP: reducedMotion() ? 1 : 0, buildP: reducedMotion() ? 1 : 0,
+      tier: quality,
     };
 
     function project(x, y, z, f, cx, cy) {
@@ -495,12 +505,22 @@
       const depth = rz2 + D;
       if (depth < 40) return null;
       const s = f / depth;
-      return { x: cx + rx * s, y: cy - ry * s, d: clamp(1.25 - depth / (D * 1.55), 0.08, 1) };
+      return { x: cx + rx * s, y: cy - ry * s, z: depth, d: clamp(1.25 - depth / (D * 1.55), 0.08, 1) };
     }
 
-    function drawSolids(f, cx, cy, buildCut) {
+    function drawSolids(f, cx, cy, buildCut, stageIndex) {
       const faces = [];
+      const light = {
+        x: Math.cos(state.yaw) * 0.42 + 0.18,
+        y: 0.86,
+        z: Math.sin(state.yaw) * 0.42 - 0.22,
+      };
+      const lenL = Math.hypot(light.x, light.y, light.z) || 1;
+      light.x /= lenL; light.y /= lenL; light.z /= lenL;
+      const view = { x: Math.sin(state.yaw) * 0.35, y: 0.2, z: 1 };
+
       for (const solid of SOLIDS) {
+        if (opts.twinStages && T.solidVisible && !T.solidVisible(solid.material, stageIndex)) continue;
         if (solid.y0 >= buildCut) continue;
         const y1 = Math.min(solid.y1, buildCut);
         if (y1 <= solid.y0 + 0.1) continue;
@@ -511,27 +531,45 @@
           [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1],
         ];
         const definitions = [[4,5,6,7], [0,1,5,4], [1,2,6,5], [2,3,7,6], [3,0,4,7]];
-        definitions.forEach((definition, faceIndex) => {
-          const points = definition.map((index) => project(...vertices[index], f, cx, cy));
+        definitions.forEach((definition) => {
+          const world = definition.map((index) => vertices[index]);
+          const ax = world[1][0] - world[0][0], ay = world[1][1] - world[0][1], az = world[1][2] - world[0][2];
+          const bx = world[2][0] - world[0][0], by = world[2][1] - world[0][1], bz = world[2][2] - world[0][2];
+          let nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx;
+          const nLen = Math.hypot(nx, ny, nz) || 1;
+          nx /= nLen; ny /= nLen; nz /= nLen;
+          const points = world.map((vertex) => project(vertex[0], vertex[1], vertex[2], f, cx, cy));
           if (points.some((point) => !point)) return;
+          const z = points.reduce((sum, point) => sum + point.z, 0) / points.length;
+          const lambert = Math.max(0, nx * light.x + ny * light.y + nz * light.z);
+          const facing = nx * view.x + ny * view.y + nz * view.z;
           faces.push({
             points,
-            depth: points.reduce((sum, point) => sum + point.d, 0) / points.length,
+            z,
+            shade: 0.38 + lambert * 0.72,
+            rim: Math.pow(1 - Math.min(1, Math.abs(facing)), 2),
             material: SOLID_MATERIALS[solid.material] || SOLID_MATERIALS.glass,
-            shade: [1.12, 0.82, 0.68, 0.92, 0.74][faceIndex],
           });
         });
       }
-      faces.sort((a, b) => a.depth - b.depth);
+      faces.sort((a, b) => b.z - a.z);
       for (const face of faces) {
+        const fog = clamp(1.12 - face.z / (D * 1.62), 0.14, 1);
+        const alpha = Math.min(1, face.material.alpha * face.shade * fog);
         ctx2d.beginPath();
         face.points.forEach((point, index) => index ? ctx2d.lineTo(point.x, point.y) : ctx2d.moveTo(point.x, point.y));
         ctx2d.closePath();
-        ctx2d.fillStyle = `rgba(${face.material.rgb},${Math.min(1, face.material.alpha * face.shade)})`;
+        ctx2d.fillStyle = `rgba(${face.material.rgb},${alpha.toFixed(3)})`;
         ctx2d.fill();
-        ctx2d.strokeStyle = `rgba(${face.material.edge},${Math.min(0.72, 0.32 + face.depth * 0.25)})`;
-        ctx2d.lineWidth = 0.8;
+        const rimA = Math.min(0.72, (0.18 + face.rim * 0.55) * fog);
+        ctx2d.strokeStyle = `rgba(47,155,255,${rimA.toFixed(3)})`;
+        ctx2d.lineWidth = quality === 'low' ? 0.55 : 0.85;
         ctx2d.stroke();
+        if (quality === 'high') {
+          ctx2d.strokeStyle = `rgba(${face.material.edge},${Math.min(0.42, 0.12 + fog * 0.22).toFixed(3)})`;
+          ctx2d.lineWidth = 0.55;
+          ctx2d.stroke();
+        }
       }
     }
 
@@ -591,14 +629,16 @@
       ctx2d.fillStyle = bloom;
       ctx2d.fillRect(0, 0, w, h);
 
-      // Star / data-dust field (parallax-lite)
-      const seed = Math.floor(state.yaw * 12);
-      for (let i = 0; i < 48; i++) {
-        const px = ((i * 97 + seed * 13) % w + w) % w;
-        const py = ((i * 53 + seed * 7) % Math.floor(h * 0.55) + h) % Math.floor(h * 0.55);
-        const s = 0.6 + (i % 3) * 0.4;
-        ctx2d.fillStyle = `rgba(160, 210, 255,${(0.12 + (i % 5) * 0.05).toFixed(3)})`;
-        ctx2d.fillRect(px, py, s, s);
+      // Star / data-dust field — high quality only (not a state loop)
+      if (quality === 'high') {
+        const seed = Math.floor(state.yaw * 12);
+        for (let i = 0; i < 28; i++) {
+          const px = ((i * 97 + seed * 13) % w + w) % w;
+          const py = ((i * 53 + seed * 7) % Math.floor(h * 0.55) + h) % Math.floor(h * 0.55);
+          const s = 0.55 + (i % 3) * 0.35;
+          ctx2d.fillStyle = `rgba(160, 210, 255,${(0.08 + (i % 5) * 0.03).toFixed(3)})`;
+          ctx2d.fillRect(px, py, s, s);
+        }
       }
 
       // Ground disc under the model
@@ -625,8 +665,8 @@
       ctx2d.fillStyle = hz;
       ctx2d.fillRect(0, Math.max(0, hzY - h * 0.12), w, h);
 
-      // Ambient ground energy ring
-      if (origin) {
+      // Ambient ground energy ring — skip on low quality
+      if (origin && quality !== 'low' && !opts.scrollConstruct) {
         const pulse = 0.5 + 0.5 * Math.sin(time * 0.0018);
         const pr = 40 + pulse * 90;
         const ring = [];
@@ -658,36 +698,45 @@
       const cy = h * (phone ? (opts.mobileCy ?? opts.cy ?? 0.52) : (opts.cy ?? 0.52));
       const animate = !reducedMotion();
       const isConstruct = !!(opts.construct || opts.film);
+      const scrollConstruct = !!opts.scrollConstruct;
 
       if (animate) {
         const dt = state.lastT ? Math.min((time - state.lastT) / 1000, 0.05) : 0.016;
         state.lastT = time;
-        if (!state.dragging && !isConstruct) {
+        if (!state.dragging && !isConstruct && !scrollConstruct) {
           state.yaw += (state.yawDrift + state.dragVel) * dt;
           state.dragVel *= 0.95;
-        } else if (!state.dragging && opts.construct) {
-          // Slow idle drift while construction loops
-          state.dragVel *= 0.95;
-          state.yaw += (state.yawDrift * 0.35 + state.dragVel) * dt;
-        } else if (state.dragging) {
+        } else if (state.dragging || scrollConstruct) {
           state.dragVel *= 0.95;
         }
-        if (opts.parallax && !opts.film) {
+        if (opts.parallax && !opts.film && !coarsePointer && quality !== 'low') {
           state.yaw += (state.pointerX * 0.18) * dt;
           state.pitch += ((0.28 + state.pointerY * 0.1) - state.pitch) * Math.min(dt * 3, 1);
         }
-        if (!isConstruct) state.scanY = (time * 0.011) % (MH + 30);
+        if (!isConstruct && !scrollConstruct) state.scanY = (time * 0.011) % (MH + 30);
       } else {
         state.scanY = MH * 0.42;
       }
 
-      // Construction / film mode: hologram builds from the ground up, loops
       let buildP = 1;
-      if (isConstruct) {
+      let twinStage = 4;
+      if (scrollConstruct && T.constructFromProgress) {
+        const p = animate ? clamp(state.scrollP ?? 0, 0, 1) : 1;
+        const c = T.constructFromProgress(p);
+        buildP = c.buildP;
+        state.filmT = p;
+        state.scanY = c.scanY * MH;
+        if (opts.scrollYaw && !state.dragging) {
+          state.yaw = (opts.yaw ?? 0.7) + c.yawBoost + state.orbitYaw + state.pointerX * 0.16;
+          state.pitch = (opts.pitch ?? 0.3) + c.pitchBoost * 0.5 + state.pointerY * 0.04;
+        }
+        if (opts.twinStages && T.twinFromProgress) {
+          twinStage = T.twinFromProgress(p).index;
+        }
+      } else if (isConstruct) {
         const cycle = opts.constructCycle || 18000;
         const t = animate ? (time % cycle) / cycle : 0.78;
         state.filmT = t;
-        // 0–70% assemble · 70–88% scan complete form · 88–100% soft reset
         if (t < 0.7) {
           const raw = t / 0.7;
           buildP = 1 - Math.pow(1 - raw, 2.4);
@@ -703,16 +752,31 @@
           state.yaw = (opts.yaw ?? 0.35) + t * 1.5;
           ctx2d.globalAlpha = t > 0.93 ? 0.25 + clamp((1 - t) / 0.07, 0, 1) * 0.75 : 1;
         }
-        // construct scenes keep user orbit / parallax; no forced yaw override
       }
 
       const scan = state.scanY;
-      const constructCut = buildP * MH + 3;
+      const constructCut = (scrollConstruct || isConstruct) ? buildP * MH + 3 : MH + 1;
       if (opts.solid) drawStudioWorld(w, h, cx, cy, f);
       else drawCinematicWorld(w, h, cx, cy, f, time);
 
       state.buildP = buildP;
-      if (opts.solid) drawSolids(f, cx, cy, isConstruct ? constructCut : MH + 1);
+      if (opts.solid) drawSolids(f, cx, cy, constructCut, twinStage);
+      if (opts.solid && motes.length) {
+        const animT = time * 0.0007;
+        for (let i = 0; i < motes.length; i++) {
+          const m = motes[i];
+          const y = animate ? (m.y + animT * m.speed * 4) % (MH + 16) : m.y;
+          const x = Math.cos(m.th + animT * 0.03) * m.r;
+          const z = Math.sin(m.th + animT * 0.03) * m.r;
+          const p = project(x, y, z, f, cx, cy);
+          if (!p) continue;
+          const fog = clamp(1.05 - p.z / (D * 1.7), 0.1, 1);
+          ctx2d.fillStyle = `rgba(82,188,255,${(0.1 + 0.18 * fog).toFixed(3)})`;
+          ctx2d.beginPath();
+          ctx2d.arc(p.x, p.y, 0.65 + p.d * 0.7, 0, Math.PI * 2);
+          ctx2d.fill();
+        }
+      }
 
       if (!opts.solid) {
         // --- wireframe lines with depth fade + scan highlight + construct reveal
@@ -811,17 +875,18 @@
         ctx2d.fill();
         }
 
-        // --- data motes (soft circles)
+        // --- data motes (soft circles, quality-scaled)
         const animT = time * 0.001;
         for (let i = 0; i < motes.length; i++) {
         const m = motes[i];
-        const y = animate ? (m.y + animT * m.speed * 6) % (MH + 20) : m.y;
-        const x = Math.cos(m.th + animT * 0.05) * m.r;
-        const z = Math.sin(m.th + animT * 0.05) * m.r;
+        const y = animate ? (m.y + animT * m.speed * 4.2) % (MH + 20) : m.y;
+        const x = Math.cos(m.th + animT * 0.04) * m.r;
+        const z = Math.sin(m.th + animT * 0.04) * m.r;
         const p = project(x, y, z, f, cx, cy);
         if (!p) continue;
-        const mr = 1.1 + p.d * 1.2;
-        ctx2d.fillStyle = `rgba(160,220,255,${(0.35 + 0.35 * p.d).toFixed(3)})`;
+        const fog = clamp(1.05 - p.z / (D * 1.7), 0.12, 1);
+        const mr = 0.7 + p.d * 0.85;
+        ctx2d.fillStyle = `rgba(82,188,255,${(0.12 + 0.22 * fog).toFixed(3)})`;
         ctx2d.beginPath();
         ctx2d.arc(p.x, p.y, mr, 0, Math.PI * 2);
         ctx2d.fill();
@@ -883,8 +948,10 @@
       const bounds = canvas.getBoundingClientRect();
       state.width = Math.max(1, bounds.width);
       state.height = Math.max(1, bounds.height);
-      const maxDpr = state.width < 760 ? 1.25 : 2;
-      state.dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+      const cap = T.dprCap
+        ? T.dprCap(window.devicePixelRatio || 1, state.width, quality)
+        : Math.min(window.devicePixelRatio || 1, state.width < 760 ? 1.25 : 1.75);
+      state.dpr = cap;
       canvas.width = Math.round(state.width * state.dpr);
       canvas.height = Math.round(state.height * state.dpr);
       draw(performance.now());
@@ -906,7 +973,7 @@
     }
 
     const host = opts.host || canvas;
-    if (opts.parallax && !reducedMotion()) {
+    if (opts.parallax && !reducedMotion() && !coarsePointer && quality !== 'low') {
       host.addEventListener('pointermove', (e) => {
         const b = host.getBoundingClientRect();
         state.pointerX = clamp((e.clientX - b.left) / b.width - 0.5, -0.5, 0.5) * 2;
@@ -928,6 +995,7 @@
         const dx = e.clientX - lastX;
         lastX = e.clientX;
         state.yaw += dx * 0.008;
+        state.orbitYaw += dx * 0.008;
         state.dragVel = dx * 0.4;
         if (reducedMotion()) draw(performance.now());
       });
@@ -938,6 +1006,10 @@
 
     resize();
     updateRunning();
+    state.setScrollProgress = function (p) {
+      state.scrollP = clamp(p, 0, 1);
+      if (!state.running) draw(performance.now());
+    };
     return state;
   }
 
@@ -964,19 +1036,20 @@
     [0.18, 'Core rising'],
     [0.40, 'Floor plates'],
     [0.58, 'Envelope set'],
-    [0.70, 'Scanning'],
-    [0.88, 'Form locked'],
-    [0.96, 'Reset'],
+    [0.82, 'Scanning'],
+    [0.94, 'Form locked'],
   ]);
 
-  createScene(document.getElementById('signal-canvas'), {
+  const heroScene = createScene(document.getElementById('signal-canvas'), {
     model: DEMO_TOWER,
     solid: true,
-    yaw: 0.8, drift: 0.035, cx: 0.7, cy: 0.52, fill: 0.88,
+    yaw: 0.8, drift: 0, cx: 0.7, cy: 0.52, fill: 0.88,
     mobileCx: 0.66, mobileCy: 0.63, mobileFill: 0.70,
     parallax: true,
     construct: true,
-    constructCycle: 20000,
+    scrollConstruct: true,
+    scrollYaw: true,
+    motes: 18,
     host: document.getElementById('signal'),
     tags: [
       { at: [0, 170, 0], text: 'ROOF' },
@@ -993,34 +1066,40 @@
   let lastTwinLevel = -1;
 
   function setTwinStage(state) {
-    const progress = reducedMotion() ? 1 : clamp(state.buildP || 0, 0, 1);
-    const index = clamp(Math.floor(progress * TWIN_STAGES.length), 0, TWIN_STAGES.length - 1);
-    const level = clamp(Math.ceil(progress * 7), 1, 7);
-    if (index === lastTwinIndex && level === lastTwinLevel) return;
-    const label = TWIN_STAGES[index];
+    const progress = reducedMotion() ? 1 : clamp(state.scrollP != null ? state.scrollP : (state.buildP || 0), 0, 1);
+    const twin = T.twinFromProgress ? T.twinFromProgress(progress) : {
+      index: clamp(Math.floor(progress * TWIN_STAGES.length), 0, TWIN_STAGES.length - 1),
+      label: TWIN_STAGES[clamp(Math.floor(progress * TWIN_STAGES.length), 0, TWIN_STAGES.length - 1)],
+      level: clamp(Math.ceil(progress * 7), 1, 7),
+      elev: clamp(Math.ceil(progress * 7), 1, 7) * 4.2,
+    };
+    if (twin.index === lastTwinIndex && twin.level === lastTwinLevel) return;
     const statusEl = document.getElementById('twin-build-status');
     const layerEl = document.getElementById('twin-layer');
     const levelEl = document.getElementById('twin-level');
     const elevEl = document.getElementById('twin-elev');
-    lastTwinIndex = index;
-    lastTwinLevel = level;
-    if (statusEl) statusEl.textContent = label;
-    if (layerEl) layerEl.textContent = label;
-    if (levelEl) levelEl.textContent = 'L.' + String(level).padStart(2, '0');
-    if (elevEl) elevEl.textContent = '+' + (level * 4.2).toFixed(2) + ' m';
+    lastTwinIndex = twin.index;
+    lastTwinLevel = twin.level;
+    if (statusEl) statusEl.textContent = twin.label;
+    if (layerEl) layerEl.textContent = twin.label;
+    if (levelEl) levelEl.textContent = 'L.' + String(twin.level).padStart(2, '0');
+    if (elevEl) elevEl.textContent = '+' + twin.elev.toFixed(2) + ' m';
     document.querySelectorAll('.twin-stage').forEach((item, itemIndex) => {
-      item.classList.toggle('is-active', itemIndex === index);
+      item.classList.toggle('is-active', itemIndex === twin.index);
+      item.classList.toggle('is-done', itemIndex < twin.index);
     });
   }
 
-  createScene(document.getElementById('twin-canvas'), {
+  const twinScene = createScene(document.getElementById('twin-canvas'), {
     model: DEMO_BUILDING,
     solid: true,
-    yaw: 0.52, drift: 0.03, cx: 0.69, cy: 0.54, fill: 0.74,
+    yaw: 0.52, drift: 0, cx: 0.69, cy: 0.54, fill: 0.74,
     mobileCx: 0.58, mobileCy: 0.62, mobileFill: 0.58,
     orbit: true,
     construct: true,
-    constructCycle: 20000,
+    scrollConstruct: true,
+    twinStages: true,
+    motes: 14,
     host: document.getElementById('twin'),
     tags: [
       { at: [-8, 48, -18], text: 'FLOOR PLATE' },
@@ -1291,7 +1370,7 @@
 
   /* Pointer parallax on cinematic plate backgrounds (3D depth feel) */
   function initBgParallax() {
-    if (reducedMotion() || !window.matchMedia('(pointer: fine)').matches) return;
+    if (reducedMotion() || saveData || !window.matchMedia('(pointer: fine)').matches) return;
     const plates = Array.from(document.querySelectorAll('.sec.slide, .vision.slide'));
     plates.forEach((sec) => {
       let raf = 0;
@@ -1332,17 +1411,84 @@
     'render portfolio/3.0 .............. GO',
   ];
 
+  function applyGateProgress(p) {
+    const pipeline = document.querySelector('#gates .pipeline');
+    if (!pipeline) return;
+    const gates = Array.from(pipeline.querySelectorAll('.gate'));
+    const rollback = pipeline.querySelector('.pl-rollback');
+    const next = reducedMotion()
+      ? { lit: 6, rollback: false, committed: true }
+      : (T.gatesFromProgress ? T.gatesFromProgress(p) : { lit: 6, rollback: false, committed: true });
+    const key = next.lit + ':' + next.rollback + ':' + next.committed;
+    if (key === applyGateProgress.lastKey) return;
+    applyGateProgress.lastKey = key;
+    pipeline.classList.toggle('is-rollback', !!next.rollback);
+    pipeline.classList.toggle('is-ignited', next.lit >= 6 && !next.rollback);
+    if (rollback) rollback.classList.toggle('is-hot', !!next.rollback);
+    gates.forEach((g, i) => {
+      const on = !next.rollback && i <= next.lit;
+      g.classList.toggle('is-lit', on);
+      g.classList.toggle('is-hot', on);
+      g.classList.toggle('is-rollback', !!next.rollback);
+    });
+  }
+  applyGateProgress.lastKey = '';
+
+  function initScrollTimeline() {
+    const sections = [
+      { el: document.getElementById('signal'), scene: heroScene },
+      { el: document.getElementById('twin'), scene: twinScene },
+      { el: document.getElementById('gates'), gates: true },
+    ].filter((item) => item.el);
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight || 1;
+      sections.forEach((item) => {
+        const p = reducedMotion()
+          ? 1
+          : (T.sectionProgress ? T.sectionProgress(item.el.getBoundingClientRect(), vh) : 1);
+        if (item.scene && item.scene.setScrollProgress) item.scene.setScrollProgress(p);
+        if (item.gates) applyGateProgress(p);
+      });
+    };
+    const requestTick = () => {
+      if (!raf) raf = window.requestAnimationFrame(tick);
+    };
+    window.addEventListener('scroll', requestTick, { passive: true });
+    window.addEventListener('resize', requestTick, { passive: true });
+    tick();
+  }
+
+  function initHeroGlyphs() {
+    const title = document.getElementById('hero-title');
+    if (!title || !title.hasAttribute('data-char-reveal') || reducedMotion()) return;
+    title.querySelectorAll(':scope > span').forEach((line) => {
+      const text = line.textContent;
+      line.textContent = '';
+      Array.from(text).forEach((ch, i) => {
+        const glyph = document.createElement('i');
+        glyph.className = 'glyph';
+        glyph.style.setProperty('--i', String(i));
+        glyph.textContent = ch === ' ' ? '\u00a0' : ch;
+        line.appendChild(glyph);
+      });
+    });
+  }
+
   function finishBoot(overlay) {
     if (overlay) {
       overlay.classList.add('done');
       window.setTimeout(() => overlay.remove(), 900);
     }
     document.body.classList.remove('boot-lock');
+    initHeroGlyphs();
     initReveals();
     initScrollspy();
     initGateIgnition();
     initSayChips();
     initBgParallax();
+    initScrollTimeline();
     // Honour deep links whose anchor jump was swallowed by the boot overlay
     if (window.location.hash) {
       const target = document.querySelector(window.location.hash);

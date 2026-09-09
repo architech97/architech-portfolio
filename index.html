@@ -67,7 +67,8 @@
   <main id="main-content" class="deck">
 
     <!-- ============ S.00 SIGNAL ============ -->
-    <section class="hero slide holo-stage" id="signal" aria-labelledby="hero-title">
+    <section class="hero slide holo-stage" id="signal" data-timeline aria-labelledby="hero-title">
+      <div class="timeline-pin">
       <canvas id="signal-canvas" class="scene-canvas" aria-hidden="true"></canvas>
       <div class="hero-grade" aria-hidden="true"></div>
       <div class="hero-vignette" aria-hidden="true"></div>
@@ -76,7 +77,7 @@
         <div class="hero-copy" data-reveal>
           <p class="sheet-tag mono">S.00 · SIGNAL</p>
           <p class="model-plate mono" aria-hidden="true">FIG. 01 · GENERIC BIM MODEL · LIVE</p>
-          <h1 id="hero-title">
+          <h1 id="hero-title" data-char-reveal>
             <span class="thin">The building</span>
             <span class="thin">is data.</span>
             <span class="strong">Command it.</span>
@@ -89,10 +90,11 @@
             <div><dt>Vectors</dt><dd><span data-count="9082">0</span></dd></div>
             <div><dt>Gates</dt><dd>G0–G6</dd></div>
           </dl>
-          <p class="hero-build mono" aria-hidden="true"><i></i>DEMO MODEL · LIVE ASSEMBLY</p>
+          <p class="hero-build mono" aria-hidden="true"><i></i><b id="hero-build-status">Assembling</b></p>
         </div>
       </div>
       <p class="scroll-cue mono" aria-hidden="true"><span></span>ENTER</p>
+      </div>
     </section>
 
     <!-- ============ S.01 THE BUILDER ============ -->
@@ -160,7 +162,8 @@
     </section>
 
     <!-- ============ S.02 DIGITAL TWIN ============ -->
-    <section class="twin slide holo-stage" id="twin" aria-labelledby="twin-title">
+    <section class="twin slide holo-stage" id="twin" data-timeline aria-labelledby="twin-title">
+      <div class="timeline-pin">
       <canvas id="twin-canvas" class="scene-canvas" aria-hidden="true"></canvas>
       <div class="twin-grade" aria-hidden="true"></div>
 
@@ -188,10 +191,12 @@
         <div class="hud-cell"><span class="hud-k">LAYER</span><span id="twin-layer">STREAM BED</span></div>
         <div class="hud-cell hud-ok"><span class="hud-k">LINK</span><span class="ro-ok">TRACKING</span></div>
       </div>
+      </div>
     </section>
 
     <!-- ============ S.03 GOVERNED WRITES ============ -->
-    <section class="sec gates slide" id="gates" aria-labelledby="gates-title">
+    <section class="sec gates slide" id="gates" data-timeline aria-labelledby="gates-title">
+      <div class="timeline-pin">
       <div class="slide-frame">
       <div class="gates-grid">
         <header class="sec-head" data-reveal>
@@ -216,12 +221,13 @@
             <span class="gate mono" style="--i:6">G5</span>
             <span class="gate mono" style="--i:7">G6</span>
           </li>
-          <li class="pl-hint mono" style="--i:7" aria-hidden="true">CLICK A GATE TO IGNITE THE CHAIN</li>
+          <li class="pl-hint mono" style="--i:7" aria-hidden="true">SCROLL TO IGNITE · CLICK A GATE TO PREVIEW</li>
           <li class="pl-stage" style="--i:8" data-tilt><span class="card-glare" aria-hidden="true"></span><b>THE CHANGE</b><span class="mono">all-or-nothing — no half-finished edits</span></li>
           <li class="pl-stage" style="--i:9" data-tilt><span class="card-glare" aria-hidden="true"></span><b>THE DOUBLE-CHECK</b><span class="mono">verified against the live model</span></li>
           <li class="pl-stage last" style="--i:10" data-tilt><span class="card-glare" aria-hidden="true"></span><b>THE RECORD</b><span class="mono">permanent proof of what changed, and why</span></li>
           <li class="pl-rollback mono" style="--i:11" aria-label="Failure path">⟲ ANY FAILURE → ROLLBACK — THE MODEL IS NEVER LEFT MID-WRITE</li>
         </ol>
+      </div>
       </div>
       </div>
     </section>
@@ -469,6 +475,7 @@
     </section>
   </main>
 
+  <script src="timeline.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

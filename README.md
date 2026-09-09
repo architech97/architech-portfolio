@@ -17,9 +17,10 @@ to tablet and mobile.
 - **Boot cinematic** — a short system boot sequence (real ports and counts) that
   runs once per browser session; skipped automatically on reduced motion.
 - **Canvas 2D scenes** (no libraries): solid shaded generic BIM demo models with
-  depth-sorted prism faces, studio lighting, and anchored data tags. The S.00 hero
-  follows the pointer; S.02 remains drag-to-orbit with a live stage, level, and
-  elevation readout.
+  depth-sorted prism faces, studio lighting, and anchored data tags. S.00 / S.02 /
+  S.03 are scroll-scrubbed timelines (assembly, twin stages, G0–G6 ignition with a
+  rollback beat). The S.00 hero follows the pointer; S.02 remains drag-to-orbit
+  with a live stage, level, and elevation readout.
 - **Real, report-attributed metrics** from the Command Center state file (vault
   notes, Qdrant vectors, ribbon tools, MCP tools, build results, QA case) — each
   stat carries its report number (r.10–r.65). No invented numbers.
@@ -46,7 +47,8 @@ to tablet and mobile.
 | --- | --- |
 | `index.html` | Structure, narrative, contact title block, canvas hosts |
 | `styles.css` | Design system (Command Center palette), motion, responsive, reduced-motion |
-| `script.js` | Boot cinematic, audio engine, solid BIM scenes, reveals, counters, scrollspy |
+| `script.js` | Boot cinematic, audio engine, solid BIM scenes, scroll timeline, reveals |
+| `timeline.js` | Pure progress / quality / gate / twin-stage math (Phase 1, zero deps) |
 | `assets/architech-mark.png` | Brand mark (copied from `ArchITECH (Design & Theme)`) |
 | `assets/bg-*.jpg` | Per-section holographic architecture plates (hero, builder, twin, gates, toolkit, proof, contact) |
 | `assets/architech-vision.jpeg` | Vision section architecture plate |
