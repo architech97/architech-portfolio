@@ -9,7 +9,7 @@ const site = path.resolve(here, '..');
 const edge = process.env.EDGE_PATH || 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 const port = 9400 + Math.floor(Math.random() * 300);
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'architech-mobile-contract-'));
-const pageUrl = pathToFileURL(path.join(site, 'index.html')).href;
+const pageUrl = process.env.PAGE_URL || pathToFileURL(path.join(site, 'index.html')).href;
 const failures = [];
 const consoleErrors = [];
 let seq = 0;
@@ -109,7 +109,7 @@ async function mobileAssertions(width, height) {
     const rollback = gates.querySelector('.pl-rollback');
     const titleblock = document.querySelector('#contact .titleblock');
     const bg = getComputedStyle(document.querySelector('#contact'), '::before');
-    const touch = [...document.querySelectorAll('[data-sound-toggle], [data-nav-toggle], .gate, .say-list li')]
+    const touch = [...document.querySelectorAll('[data-sound-toggle], [data-nav-toggle], .gate')]
       .map((el) => ({ label: el.getAttribute('aria-label') || el.textContent.trim().slice(0, 24), ...rect(el) }));
     return {
       viewport: [innerWidth, innerHeight],
@@ -166,7 +166,7 @@ async function mobileAssertions(width, height) {
     };
   })()`);
   check(drawer.height >= height - 80, `${width}: drawer height is ${drawer.height.toFixed(1)}px`);
-  check(drawer.visibleLinks === 7, `${width}: drawer exposes ${drawer.visibleLinks}/7 links`);
+  check(drawer.visibleLinks === 8, `${width}: drawer exposes ${drawer.visibleLinks}/8 links`);
   check(drawer.htmlLocked && drawer.bodyLocked, `${width}: drawer does not lock both html and body`);
 }
 
@@ -180,12 +180,36 @@ async function desktopAssertions() {
     gatesColumns: getComputedStyle(document.querySelector('.gates-grid')).gridTemplateColumns.trim().split(/\\s+/).length,
     horizontalOverflow: document.documentElement.scrollWidth - innerWidth,
   }))()`);
-  check(desktop.snap.includes('mandatory'), `desktop: scroll snap changed to ${desktop.snap}`);
+  check(desktop.snap === 'none', `desktop: expected natural scrolling, got ${desktop.snap}`);
   check(desktop.navToggle === 'none', `desktop: mobile menu toggle is ${desktop.navToggle}`);
   check(desktop.navPosition === 'static', `desktop: navigation position is ${desktop.navPosition}`);
   check(desktop.titleColumns === 4, `desktop: Title Block has ${desktop.titleColumns} columns`);
   check(desktop.gatesColumns === 2, `desktop: Gates layout has ${desktop.gatesColumns} columns`);
   check(desktop.horizontalOverflow <= 1, `desktop: horizontal overflow ${desktop.horizontalOverflow}px`);
+}
+
+async function projectAssertions() {
+  const result = await value(`(() => ({
+    count: document.querySelectorAll('.project-card').length,
+    brokenAnchors: [...document.querySelectorAll('a[href^="#"]')].filter(a => !document.getElementById(a.hash.slice(1))).map(a => a.hash),
+    brokenImages: [...document.images].filter(i => i.complete && !i.naturalWidth).map(i => i.src),
+    privateLinks: [...document.querySelectorAll('.project-links a')].filter(a => a.href.includes('github.com')).map(a => a.href),
+    newImagesLazy: [...document.querySelectorAll('.project-media img')].every(i => i.loading === 'lazy'),
+    heading: document.querySelector('h1').getAttribute('aria-label') || document.querySelector('h1').textContent.replace(/\\s+/g, ' ').trim()
+  }))()`);
+  check(result.count === 3, 'expected three dedicated project stories');
+  check(result.brokenAnchors.length === 0, `broken anchors: ${result.brokenAnchors}`);
+  check(result.brokenImages.length === 0, `broken images: ${result.brokenImages}`);
+  check(result.privateLinks.length === 0, 'project CTAs must use public demos or contact');
+  check(result.newImagesLazy, 'project images should be lazy loaded');
+  check(result.heading === 'Architecture. Automation. Intelligence.', 'hero accessible name must read naturally');
+}
+
+async function screenshot(name) {
+  if (!process.env.ARTIFACT_DIR) return;
+  fs.mkdirSync(process.env.ARTIFACT_DIR, { recursive: true });
+  const result = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  fs.writeFileSync(path.join(process.env.ARTIFACT_DIR, name + '.png'), Buffer.from(result.data, 'base64'));
 }
 
 try {
@@ -214,10 +238,26 @@ try {
   await call('Page.addScriptToEvaluateOnNewDocument', {
     source: `try { sessionStorage.setItem('architechBooted', '1'); } catch {}`,
   });
-  for (const [width, height] of [[360, 800], [390, 844], [430, 932]]) {
+  for (const [width, height] of [[320, 740], [360, 800], [390, 844], [430, 932]]) {
     await mobileAssertions(width, height);
   }
   await desktopAssertions();
+  await projectAssertions();
+  await screenshot('desktop-hero');
+  await value(`document.querySelector('#projects').scrollIntoView({behavior:'instant'}); true`);
+  await sleep(600);
+  await screenshot('desktop-projects');
+  await load(390, 844, true);
+  await screenshot('mobile-hero');
+  await value(`document.querySelector('#architech-i3d').scrollIntoView({behavior:'instant'}); true`);
+  await sleep(600);
+  await screenshot('mobile-project');
+  await call('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  await load(390, 844, true);
+  const reduced = await value(`(() => ({artAnimation:getComputedStyle(document.querySelector('.hero-art')).animationName, boot:!!document.querySelector('#boot'), navInert:document.querySelector('#site-nav').inert}))()`);
+  check(reduced.artAnimation === 'none', 'reduced motion: hero reveal should be disabled');
+  check(!reduced.boot, 'content should be available without a boot screen');
+  check(reduced.navInert, 'closed mobile navigation should be excluded from tab order');
   check(consoleErrors.length === 0, `console errors: ${consoleErrors.join(' | ')}`);
   if (failures.length) {
     failures.forEach((failure) => console.error(`FAIL: ${failure}`));

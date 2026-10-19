@@ -90,7 +90,7 @@ for (const token of ['html.nav-lock', 'grid-template-columns: repeat(2, minmax(0
   if (!css.includes(token)) fail(`Missing mobile layout contract: ${token}`);
 }
 
-if (/https?:\/\/(?!www\.linkedin\.com\/in\/architech-india\/|github\.com\/architech97|www\.instagram\.com\/ar\.navneet\.97\/|architech97\.github\.io\/architech-command-center\/|architech97\.github\.io\/architech-portfolio\/)/.test(html)) {
+if (/https?:\/\/(?!www\.linkedin\.com\/in\/architech-india\/|www\.linkedin\.com\/posts\/architech-india_[a-zA-Z0-9_-]+|github\.com\/architech97|www\.instagram\.com\/ar\.navneet\.97\/|architech97\.github\.io\/architech-command-center\/|architech97\.github\.io\/architech-portfolio\/)/.test(html)) {
   fail('Unexpected remote dependency found in index.html');
 }
 

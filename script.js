@@ -267,6 +267,7 @@
       document.body.classList.toggle('nav-lock', open);
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+      nav.inert = window.innerWidth <= 920 && !open;
       if (scrim) {
         if (open) scrim.removeAttribute('hidden');
         else scrim.setAttribute('hidden', '');
@@ -281,11 +282,21 @@
       a.addEventListener('click', () => setOpen(false));
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && document.body.classList.contains('nav-open')) setOpen(false);
+      if (!document.body.classList.contains('nav-open')) return;
+      if (e.key === 'Escape') { setOpen(false); toggle.focus(); }
+      if (e.key === 'Tab') {
+        const links = Array.from(nav.querySelectorAll('a'));
+        const first = links[0], last = links[links.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); toggle.focus(); }
+        else if (e.shiftKey && document.activeElement === toggle) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); toggle.focus(); }
+      }
     });
     window.addEventListener('resize', () => {
       if (window.innerWidth > 920 && document.body.classList.contains('nav-open')) setOpen(false);
+      nav.inert = window.innerWidth <= 920 && !document.body.classList.contains('nav-open');
     });
+    nav.inert = window.innerWidth <= 920;
   }
   initMobileNav();
 
@@ -467,7 +478,7 @@
   }
 
   function createScene(canvas, opts) {
-    if (!canvas || !canvas.getContext) return null;
+    if (!canvas || !canvas.getContext || getComputedStyle(canvas).display === 'none') return null;
     const ctx2d = canvas.getContext('2d');
     if (!ctx2d) return null;
 
@@ -1145,7 +1156,7 @@
      Liquid-glass tilt panels — pointer-driven 3D + glare tracking
      ------------------------------------------------------------ */
   if (!reducedMotion() && window.matchMedia('(pointer: fine)').matches) {
-    const TILT_MAX = 7.5;
+    const TILT_MAX = 2;
     document.querySelectorAll('[data-tilt]').forEach((el) => {
       let raf = 0;
       let tx = 0, ty = 0, cx = 0, cy = 0;
@@ -1155,7 +1166,7 @@
         cy += (ty - cy) * 0.18;
         el.style.transform =
           'perspective(1000px) rotateX(' + ((0.5 - cy) * TILT_MAX).toFixed(2) +
-          'deg) rotateY(' + ((cx - 0.5) * TILT_MAX).toFixed(2) + 'deg) translateY(-6px) scale(1.015)';
+          'deg) rotateY(' + ((cx - 0.5) * TILT_MAX).toFixed(2) + 'deg) translateY(-2px) scale(1.002)';
         el.style.setProperty('--gx', (cx * 100).toFixed(1) + '%');
         el.style.setProperty('--gy', (cy * 100).toFixed(1) + '%');
         if (Math.abs(tx - cx) > 0.002 || Math.abs(ty - cy) > 0.002) {
@@ -1282,12 +1293,15 @@
   function initScrollspy() {
     const links = Array.from(document.querySelectorAll('.site-nav a'));
     const dots = Array.from(document.querySelectorAll('.slide-dot'));
-    const sections = Array.from(document.querySelectorAll('main .slide[id]'));
+    const sections = Array.from(document.querySelectorAll('main section[id]'));
     if (!sections.length || !('IntersectionObserver' in window)) return;
 
     const setActive = (id) => {
       links.forEach((a) => {
-        a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        const active = a.getAttribute('href') === '#' + id;
+        a.classList.toggle('active', active);
+        if (active) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
       });
       dots.forEach((d) => {
         d.classList.toggle('active', d.getAttribute('data-slide') === id);
@@ -1403,13 +1417,6 @@
   /* ------------------------------------------------------------
      Boot cinematic — skipped on reduced motion and on revisit
      ------------------------------------------------------------ */
-  const BOOT_LINES = [
-    'agentic bim os .................... ONLINE',
-    'memory vault · 6,991 notes ........ OK',
-    'revit bridge ...................... LINKED',
-    'voice core · EN + HI .............. OK',
-    'render portfolio/3.0 .............. GO',
-  ];
 
   function applyGateProgress(p) {
     const pipeline = document.querySelector('#gates .pipeline');
@@ -1463,7 +1470,9 @@
   function initHeroGlyphs() {
     const title = document.getElementById('hero-title');
     if (!title || !title.hasAttribute('data-char-reveal') || reducedMotion()) return;
+    title.setAttribute('aria-label', title.textContent.replace(/\s+/g, ' ').trim());
     title.querySelectorAll(':scope > span').forEach((line) => {
+      line.setAttribute('aria-hidden', 'true');
       const text = line.textContent;
       line.textContent = '';
       Array.from(text).forEach((ch, i) => {
@@ -1486,12 +1495,14 @@
     initReveals();
     initScrollspy();
     initGateIgnition();
-    initSayChips();
+    // Command examples are explanatory text, not pretend executable controls.
     initBgParallax();
     initScrollTimeline();
     // Honour deep links whose anchor jump was swallowed by the boot overlay
     if (window.location.hash) {
-      const target = document.querySelector(window.location.hash);
+      let hash = window.location.hash.slice(1);
+      try { hash = decodeURIComponent(hash); } catch {}
+      const target = document.getElementById(hash);
       if (target) {
         if (window.scrollY < 10) target.scrollIntoView();
         window.setTimeout(() => revealSlide(target), 200);
@@ -1499,48 +1510,6 @@
     }
   }
 
-  function boot() {
-    let seen = false;
-    try { seen = window.sessionStorage.getItem('architechBooted') === '1'; } catch (e) { /* storage unavailable */ }
-    if (reducedMotion() || seen) { finishBoot(null); return; }
-    try { window.sessionStorage.setItem('architechBooted', '1'); } catch (e) { /* storage unavailable */ }
-
-    const overlay = document.createElement('div');
-    overlay.id = 'boot';
-    overlay.setAttribute('aria-hidden', 'true');
-    overlay.innerHTML =
-      '<div class="boot-inner">' +
-      '<p class="boot-mark">ARCHI<b>TECH</b></p>' +
-      '<pre class="boot-log"></pre>' +
-      '<div class="boot-bar"><i></i></div>' +
-      '</div>';
-    document.body.appendChild(overlay);
-    document.body.classList.add('boot-lock');
-
-    const log = overlay.querySelector('.boot-log');
-    const bar = overlay.querySelector('.boot-bar i');
-    let i = 0;
-    const step = () => {
-      if (i < BOOT_LINES.length) {
-        const line = BOOT_LINES[i];
-        const parts = line.split(/ (OK|LINKED|GO)$/);
-        log.appendChild(document.createTextNode(parts[0] + ' '));
-        if (parts[1]) {
-          const em = document.createElement('em');
-          em.textContent = parts[1];
-          log.appendChild(em);
-        }
-        log.appendChild(document.createTextNode('\n'));
-        i += 1;
-        bar.style.width = (i / BOOT_LINES.length) * 100 + '%';
-        blip(980 + i * 90, 0.03, 0.02);
-        window.setTimeout(step, 210);
-      } else {
-        window.setTimeout(() => finishBoot(overlay), 420);
-      }
-    };
-    window.setTimeout(step, 260);
-  }
-
-  boot();
+  // Render the portfolio immediately, including its deep-linked section.
+  finishBoot(null);
 })();

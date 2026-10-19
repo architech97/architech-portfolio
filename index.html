@@ -16,8 +16,9 @@
   <meta name="twitter:image" content="https://architech97.github.io/architech-portfolio/assets/architech-vision.jpeg">
   <title>ArchiTECH — BIM × Tech × AI × Architecture</title>
   <link rel="icon" type="image/png" href="assets/architech-mark.png">
-  <link rel="preload" as="image" href="assets/architech-vision.jpeg">
+  <link rel="preload" as="image" href="assets/bg-hero.jpg">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="refresh.css">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -30,7 +31,8 @@
       <span class="brand-word">ARCHI<b>TECH</b></span>
     </a>
 
-    <nav class="site-nav" id="site-nav" aria-label="Drawing set">
+    <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+      <a href="#projects">Projects</a>
       <a class="js-audio-hit" href="#system"><i>S.01</i> Builder</a>
       <a class="js-audio-hit" href="#twin"><i>S.02</i> Model</a>
       <a class="js-audio-hit" href="#gates"><i>S.03</i> Gates</a>
@@ -69,21 +71,24 @@
     <!-- ============ S.00 SIGNAL ============ -->
     <section class="hero slide holo-stage" id="signal" data-timeline aria-labelledby="hero-title">
       <div class="timeline-pin">
+      <img class="hero-art" src="assets/bg-hero.jpg" alt="" width="1408" height="704" fetchpriority="high">
       <canvas id="signal-canvas" class="scene-canvas" aria-hidden="true"></canvas>
       <div class="hero-grade" aria-hidden="true"></div>
       <div class="hero-vignette" aria-hidden="true"></div>
 
       <div class="hero-inner">
         <div class="hero-copy" data-reveal>
-          <p class="sheet-tag mono">S.00 · SIGNAL</p>
+          <p class="sheet-tag mono">NAVNEET SINGH / ARCHITECT &amp; BIM TECHNOLOGIST</p>
           <p class="model-plate mono" aria-hidden="true">FIG. 01 · GENERIC BIM MODEL · LIVE</p>
           <h1 id="hero-title" data-char-reveal>
-            <span class="thin">The building</span>
-            <span class="thin">is data.</span>
-            <span class="strong">Command it.</span>
+            <span class="thin">Architecture.</span>
+            <span class="thin">Automation.</span>
+            <span class="strong">Intelligence.</span>
           </h1>
+          <p class="hero-intro">I build tools that connect design intent with digital delivery. Revit automation, applied AI, and the workflows between them.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary js-audio-hit" href="#system">Explore the system <b aria-hidden="true">↳</b></a>
+            <a class="btn btn-primary js-audio-hit" href="#projects">Explore the projects <b aria-hidden="true">↗</b></a>
+            <a class="text-link" href="#system">Meet the builder <span aria-hidden="true">↓</span></a>
           </div>
           <dl class="hero-hud mono" aria-label="System readout">
             <div><dt>Elements</dt><dd><span data-count="34510">0</span></dd></div>
@@ -93,7 +98,53 @@
           <p class="hero-build mono" aria-hidden="true"><i></i><b id="hero-build-status">Assembling</b></p>
         </div>
       </div>
+      <div class="hero-foot mono"><span>BIM × TECH × AI × ARCHITECTURE</span><span>INDEPENDENT TOOLS. CONNECTED THINKING.</span><span>SCROLL TO EXPLORE ↓</span></div>
       <p class="scroll-cue mono" aria-hidden="true"><span></span>ENTER</p>
+      </div>
+    </section>
+
+
+    <section class="projects" id="projects" aria-labelledby="projects-title">
+      <div class="slide-frame">
+        <p class="sheet-tag mono" data-reveal>01 / SELECTED PROJECTS</p>
+        <header class="project-heading" data-reveal>
+          <h2 id="projects-title">From idea.<br>Into the model.</h2>
+          <p>Three connected explorations in AI-assisted BIM. Each starts with a practical question about how architects work.</p>
+        </header>
+        <div class="project-grid">
+          <article class="project-card" id="architech-i3d" data-reveal data-tilt aria-labelledby="i3d-title">
+            <figure class="project-media"><img src="assets/architech-vision.jpeg" alt="" width="1408" height="768" loading="lazy" decoding="async"><figcaption>ARCHITECH CONCEPT ART / WORKFLOW EXPLORATION</figcaption></figure>
+            <div class="project-body">
+              <div class="project-index"><span>01 / IMAGE → BIM</span><span class="project-status">EXPERIMENTAL BUILD</span></div>
+              <h3 id="i3d-title">ArchiTECH-I3D</h3>
+              <p>A reference image is a starting point. I3D explores the journey from image to textured 3D asset to Revit family, with scale control along the way.</p>
+              <p class="project-detail">Public recordings explore local and cloud-based generation workflows. Generated geometry, topology, and mesh quality still need review before project use.</p>
+              <ul class="project-tags" aria-label="I3D focus"><li>IMAGE TO 3D</li><li>TEXTURES</li><li>REVIT FAMILIES</li></ul>
+              <div class="project-links"><a href="https://www.linkedin.com/posts/architech-india_architech-architechi3d-revit-activity-7509904933824000000-UpSj" target="_blank" rel="noreferrer">View recorded demo <span aria-hidden="true">↗</span></a><a href="#contact">Discuss I3D <span aria-hidden="true">↗</span></a></div>
+            </div>
+          </article>
+          <article class="project-card" id="architech-mcp" data-reveal data-tilt aria-labelledby="mcp-title">
+            <figure class="project-media"><img src="assets/bg-gates.jpg" alt="" width="1408" height="768" loading="lazy" decoding="async"><figcaption>ARCHITECH CONCEPT ART / CONTROLLED TOOLS</figcaption></figure>
+            <div class="project-body">
+              <div class="project-index"><span>02 / INTENT → ACTION</span><span class="project-status">RESEARCH BUILD</span></div>
+              <h3 id="mcp-title">ArchiTECH-MCP</h3>
+              <p>A controlled connection between AI agents and the live Revit model. Inspect model information, work through multi-step tasks, and check the results against the model.</p>
+              <ul class="project-tags" aria-label="MCP focus"><li>MODEL CONTEXT</li><li>CONTROLLED TOOLS</li><li>VERIFICATION</li></ul>
+              <div class="project-links"><a href="https://www.linkedin.com/posts/architech-india_architech-revit-bim-activity-7509672003092566016-BI20" target="_blank" rel="noreferrer">View recorded demo <span aria-hidden="true">↗</span></a><a href="#contact">Discuss MCP <span aria-hidden="true">↗</span></a></div>
+            </div>
+          </article>
+          <article class="project-card" id="architech-assistant" data-reveal data-tilt aria-labelledby="assistant-title">
+            <figure class="project-media"><img src="assets/bg-toolkit.jpg" alt="" width="1408" height="768" loading="lazy" decoding="async"><figcaption>ARCHITECH CONCEPT ART / IN-MODEL INTERACTION</figcaption></figure>
+            <div class="project-body">
+              <div class="project-index"><span>03 / LANGUAGE → WORKFLOW</span><span class="project-status">RESEARCH BUILD</span></div>
+              <h3 id="assistant-title">ArchiTECH-Assistant</h3>
+              <p>A chat interface inside Revit for working with a local AI agent. Describe a task in natural language, follow execution through ArchiTECH-MCP, and review the outcome in the model.</p>
+              <ul class="project-tags" aria-label="Assistant focus"><li>REVIT CHAT</li><li>LOCAL AI</li><li>NATURAL LANGUAGE</li></ul>
+              <div class="project-links"><a href="https://www.linkedin.com/posts/architech-india_architech-revit-bim-activity-7509672003092566016-BI20" target="_blank" rel="noreferrer">View recorded demo <span aria-hidden="true">↗</span></a><a href="#contact">Discuss Assistant <span aria-hidden="true">↗</span></a></div>
+            </div>
+          </article>
+        </div>
+        <p class="project-note">Recorded demos document specific experiments, rather than a general release. The images above are existing ArchiTECH concept art, not product screenshots.</p>
       </div>
     </section>
 
@@ -106,10 +157,11 @@
           <p class="sec-lede">
             I'm Navneet Singh. BIM software that wastes human hours on machine work forced me
             to build ArchiTECH — Revit tools, AI agents, and a knowledge system I run myself.
-            Everything below is shipped and measured.
+            The original portfolio below records earlier work and report-attributed results. The project cards above show newer research.
           </p>
         </header>
 
+        <p class="project-note">ARCHIVE / JULY 2026 REPORT SNAPSHOT — HISTORICAL RESULTS, NOT CURRENT RELEASE CLAIMS</p>
         <div class="stat-hero" data-reveal>
           <article class="stat primary">
             <b class="mono"><span data-count="66">0</span></b>
@@ -286,7 +338,7 @@
           <span class="card-glare" aria-hidden="true"></span>
           <p class="card-eyebrow mono">C# PLUGIN SUITE</p>
           <h3>ParaManager & Sheet Export</h3>
-          <p>Compiled add-ins for bulk parameters and batch sheet packages. 3,017 sources, every build green.</p>
+          <p>Compiled add-ins for bulk parameters and batch sheet packages. 3,017 sources, historical build results recorded below.</p>
           <p class="card-meta mono">9/9 BUILDS PASS · REVIT 2024/25 · r.63 · r.31</p>
         </article>
 
@@ -294,7 +346,7 @@
           <span class="card-glare" aria-hidden="true"></span>
           <p class="card-eyebrow mono">COMMAND CENTER</p>
           <h3>Mission control, offline</h3>
-          <p>Native desktop cockpit with live telemetry. No cloud, no subscription — runs with the network cable pulled.</p>
+          <p>Local desktop cockpit with telemetry. The linked public dashboard is a snapshot; connected services run in the local environment.</p>
           <p class="card-meta mono">NATIVE SHELL · LOCAL-FIRST · r.62</p>
         </article>
       </div>
@@ -407,8 +459,8 @@
           <p class="sheet-tag mono">S.07 · TITLE BLOCK</p>
           <h2 id="contact-title">Every drawing set<br>ends with a signature.</h2>
           <p class="sec-lede contact-lede">
-            Open a direct line. Every metric on this site is report-attributed —
-            the same discipline the system enforces on itself.
+            Let’s talk about BIM automation, Revit tools, or a new workflow.
+            Connect directly to discuss the projects and the ideas behind them.
           </p>
         </header>
 
@@ -426,7 +478,7 @@
           <div class="tb-cell">
             <i class="mono">CHECKED BY</i>
             <b>JARVIS</b>
-            <span class="mono">48/48 CHECKS PASS</span>
+            <span class="mono">HISTORICAL VOICE TESTS</span>
           </div>
           <div class="tb-cell">
             <i class="mono">DATE</i>
@@ -468,7 +520,7 @@
         <footer class="footer" data-reveal>
           <img class="footer-wordmark" src="assets/architech-logo-color.png" alt="ArchiTECH" width="160" height="44" loading="lazy">
           <p class="mono">LOCAL-FIRST · NO CLOUD · RUNS ON MY MACHINE</p>
-          <p class="mono footnote">Metrics report-attributed · Command Center r.10–r.65 · re-verified 2026-07-09/10</p>
+          <p class="mono footnote">Metrics report-attributed · Command Center r.10–r.65 · historical snapshot 2026-07-09/10</p>
           <p class="mono">© 2026 NAVNEET SINGH — ARCHITECH</p>
         </footer>
       </div>
