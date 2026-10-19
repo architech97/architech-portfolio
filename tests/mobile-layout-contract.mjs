@@ -93,116 +93,70 @@ async function load(width, height, mobile) {
   await sleep(250);
 }
 
-async function mobileAssertions(width, height) {
-  await load(width, height, true);
-  const base = await value(`(() => {
-    const rect = (el) => {
-      const r = el.getBoundingClientRect();
-      return { top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, width: r.width, height: r.height };
-    };
-    const visionButton = document.querySelector('#vision .vision-cta .btn');
-    const contactTag = document.querySelector('#contact .sheet-tag');
-    const footerLast = document.querySelector('#contact .footer p:last-child');
-    const twinRail = document.querySelector('#twin .twin-rail');
-    const twinHud = document.querySelector('#twin .twin-hud');
-    const gates = document.querySelector('#gates');
-    const rollback = gates.querySelector('.pl-rollback');
-    const titleblock = document.querySelector('#contact .titleblock');
-    const bg = getComputedStyle(document.querySelector('#contact'), '::before');
-    const touch = [...document.querySelectorAll('[data-sound-toggle], [data-nav-toggle], .gate')]
-      .map((el) => ({ label: el.getAttribute('aria-label') || el.textContent.trim().slice(0, 24), ...rect(el) }));
-    return {
-      viewport: [innerWidth, innerHeight],
-      horizontalOverflow: document.documentElement.scrollWidth - innerWidth,
-      visionGap: rect(contactTag).top - rect(visionButton).bottom,
-      footerGap: document.documentElement.scrollHeight - rect(footerLast).bottom,
-      twinGap: rect(twinHud).top - rect(twinRail).bottom,
-      gatesOverflow: rect(rollback).bottom - rect(gates).bottom,
-      titleColumns: getComputedStyle(titleblock).gridTemplateColumns.trim().split(/\\s+/).length,
-      bgTop: parseFloat(bg.top),
-      bgTransform: bg.transform,
-      bgAnimation: bg.animationName,
-      touch,
-    };
-  })()`);
-
-  check(base.horizontalOverflow <= 1, `${width}: horizontal overflow ${base.horizontalOverflow}px`);
-  check(base.gatesOverflow <= 1, `${width}: Gates content exceeds section by ${base.gatesOverflow.toFixed(1)}px`);
-  check(base.twinGap >= 12, `${width}: Twin rail/HUD gap is ${base.twinGap.toFixed(1)}px`);
-  check(base.visionGap <= 72, `${width}: Vision-to-Contact gap is ${base.visionGap.toFixed(1)}px`);
-  check(base.footerGap <= 32, `${width}: footer ends ${base.footerGap.toFixed(1)}px before document end`);
-  check(base.titleColumns === 2, `${width}: Title Block has ${base.titleColumns} columns, expected 2`);
-  check(base.bgTop >= -0.5, `${width}: Contact background overscans by ${Math.abs(base.bgTop).toFixed(1)}px`);
-  check(base.bgTransform === 'none', `${width}: Contact background transform is ${base.bgTransform}`);
-  check(base.bgAnimation === 'none', `${width}: Contact background animation is ${base.bgAnimation}`);
-  base.touch.forEach((target) => check(
-    target.width >= 44 && target.height >= 44,
-    `${width}: touch target ${target.label} is ${target.width.toFixed(1)}×${target.height.toFixed(1)}`,
-  ));
-
-  await value(`document.querySelector('#vision .vision-cta .btn').scrollIntoView({ behavior: 'instant', block: 'center' }); true`);
-  await sleep(100);
-  const ctaVisible = await value(`(() => {
-    const btn = document.querySelector('#vision .vision-cta .btn');
-    const r = btn.getBoundingClientRect();
-    const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    return Boolean(top && top.closest('.btn') === btn);
-  })()`);
-  check(ctaVisible, `${width}: Vision CTA is covered by an adjacent section`);
-
-  await value(`document.querySelector('[data-nav-toggle]').click(); true`);
-  await sleep(100);
-  const drawer = await value(`(() => {
-    const nav = document.querySelector('#site-nav');
-    const r = nav.getBoundingClientRect();
-    return {
-      height: r.height,
-      visibleLinks: [...nav.querySelectorAll('a')].filter((a) => {
-        const x = a.getBoundingClientRect();
-        return x.width > 0 && x.height > 0;
-      }).length,
-      htmlLocked: document.documentElement.classList.contains('nav-lock'),
-      bodyLocked: document.body.classList.contains('nav-lock'),
-    };
-  })()`);
-  check(drawer.height >= height - 80, `${width}: drawer height is ${drawer.height.toFixed(1)}px`);
-  check(drawer.visibleLinks === 8, `${width}: drawer exposes ${drawer.visibleLinks}/8 links`);
-  check(drawer.htmlLocked && drawer.bodyLocked, `${width}: drawer does not lock both html and body`);
-}
-
-async function desktopAssertions() {
-  await load(1366, 768, false);
-  const desktop = await value(`(() => ({
+async function layoutAssertions(width, height, mobile) {
+  await load(width, height, mobile);
+  await sleep(700);
+  const base = await value('(' + (() => ({
+    overflow: document.documentElement.scrollWidth - innerWidth,
     snap: getComputedStyle(document.documentElement).scrollSnapType,
-    navToggle: getComputedStyle(document.querySelector('[data-nav-toggle]')).display,
-    navPosition: getComputedStyle(document.querySelector('#site-nav')).position,
-    titleColumns: getComputedStyle(document.querySelector('#contact .titleblock')).gridTemplateColumns.trim().split(/\\s+/).length,
-    gatesColumns: getComputedStyle(document.querySelector('.gates-grid')).gridTemplateColumns.trim().split(/\\s+/).length,
-    horizontalOverflow: document.documentElement.scrollWidth - innerWidth,
-  }))()`);
-  check(desktop.snap === 'none', `desktop: expected natural scrolling, got ${desktop.snap}`);
-  check(desktop.navToggle === 'none', `desktop: mobile menu toggle is ${desktop.navToggle}`);
-  check(desktop.navPosition === 'static', `desktop: navigation position is ${desktop.navPosition}`);
-  check(desktop.titleColumns === 4, `desktop: Title Block has ${desktop.titleColumns} columns`);
-  check(desktop.gatesColumns === 2, `desktop: Gates layout has ${desktop.gatesColumns} columns`);
-  check(desktop.horizontalOverflow <= 1, `desktop: horizontal overflow ${desktop.horizontalOverflow}px`);
+    menu: getComputedStyle(document.querySelector('[data-nav-toggle]')).display,
+    navInert: document.querySelector('#site-nav').inert,
+    cols: getComputedStyle(document.querySelector('#contact .titleblock')).gridTemplateColumns.trim().split(/\s+/).length,
+    cards: [...document.querySelectorAll('.project-card')].map(card => {
+      const r = card.getBoundingClientRect();
+      return {id:card.id, overflow:card.scrollWidth-card.clientWidth, left:r.left, right:r.right};
+    }),
+    controls: [...document.querySelectorAll('[data-sound-toggle], [data-nav-toggle], .project-links a')].filter(el => getComputedStyle(el).display !== 'none').map(el => {
+      const r=el.getBoundingClientRect(); return {label:el.getAttribute('aria-label')||el.textContent.trim(),w:r.width,h:r.height};
+    })
+  })).toString() + ')()');
+  check(base.overflow <= 1, width + ': horizontal overflow ' + base.overflow);
+  check(base.snap === 'none', width + ': natural scrolling required');
+  check(base.cols === (width <= 640 ? 2 : 4), width + ': contact column count');
+  base.cards.forEach(card => {
+    check(card.overflow <= 1, width + ': overflowing content in ' + card.id);
+    check(card.left >= -1 && card.right <= width+1, width + ': card exceeds viewport ' + card.id);
+  });
+  base.controls.forEach(c => check(c.w >= 44 && c.h >= 44, width + ': touch target ' + c.label + ' ' + c.w + 'x' + c.h));
+  if(width <= 920) {
+    check(base.navInert, width + ': closed menu must be excluded from tab order');
+    await value("document.querySelector('[data-nav-toggle]').click(); true");
+    await sleep(400);
+    const drawer = await value('(' + (() => ({
+      expanded:document.querySelector('[data-nav-toggle]').getAttribute('aria-expanded'),
+      inert:document.querySelector('#site-nav').inert,
+      links:document.querySelectorAll('#site-nav a').length,
+      locked:document.documentElement.classList.contains('nav-lock') && document.body.classList.contains('nav-lock')
+    })).toString() + ')()');
+    check(drawer.expanded === 'true' && !drawer.inert && drawer.locked && drawer.links === 5, width + ': menu open state');
+    await value("document.querySelector('[data-nav-toggle]').focus(); true");
+    await call('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+    await call('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+    check(await value("document.activeElement === document.querySelector('#site-nav a')"), width + ': Tab enters menu');
+    await call('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    await call('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    check(await value("document.querySelector('[data-nav-toggle]').getAttribute('aria-expanded') === 'false' && document.activeElement === document.querySelector('[data-nav-toggle]')"), width + ': Escape closes menu and returns focus');
+  } else check(base.menu === 'none' && !base.navInert, 'desktop navigation must be available');
 }
 
 async function projectAssertions() {
-  const result = await value(`(() => ({
-    count: document.querySelectorAll('.project-card').length,
-    brokenAnchors: [...document.querySelectorAll('a[href^="#"]')].filter(a => !document.getElementById(a.hash.slice(1))).map(a => a.hash),
-    brokenImages: [...document.images].filter(i => i.complete && !i.naturalWidth).map(i => i.src),
-    privateLinks: [...document.querySelectorAll('.project-links a')].filter(a => a.href.includes('github.com')).map(a => a.href),
-    newImagesLazy: [...document.querySelectorAll('.project-media img')].every(i => i.loading === 'lazy'),
-    heading: document.querySelector('h1').getAttribute('aria-label') || document.querySelector('h1').textContent.replace(/\\s+/g, ' ').trim()
-  }))()`);
-  check(result.count === 3, 'expected three dedicated project stories');
-  check(result.brokenAnchors.length === 0, `broken anchors: ${result.brokenAnchors}`);
-  check(result.brokenImages.length === 0, `broken images: ${result.brokenImages}`);
-  check(result.privateLinks.length === 0, 'project CTAs must use public demos or contact');
-  check(result.newImagesLazy, 'project images should be lazy loaded');
-  check(result.heading === 'Architecture. Automation. Intelligence.', 'hero accessible name must read naturally');
+  const result = await value('(' + (() => ({
+    titles:[...document.querySelectorAll('.project-card h3')].map(el=>el.textContent.trim()),
+    sections:[...document.querySelectorAll('main > section')].map(el=>el.id),
+    strengths:[...document.querySelectorAll('.project-strengths')].map(el=>el.children.length),
+    workflows:[...document.querySelectorAll('.project-workflow')].map(el=>el.children.length),
+    brokenAnchors:[...document.querySelectorAll('a[href^="#"]')].filter(a=>!document.getElementById(a.hash.slice(1))).map(a=>a.hash),
+    brokenImages:[...document.images].filter(i=>i.complete&&!i.naturalWidth).map(i=>i.src),
+    privateLinks:[...document.querySelectorAll('.project-links a')].filter(a=>a.href.includes('github.com')).map(a=>a.href),
+    text:document.body.innerText
+  })).toString() + ')()');
+  check(JSON.stringify(result.titles) === JSON.stringify(['ArchiTECH-I3D','ArchiTECH-MCP','ArchiTECH-Assistant']), 'exactly the three requested projects');
+  check(JSON.stringify(result.sections) === JSON.stringify(['signal','projects','about','contact']), 'only hero, requested projects, about and contact remain');
+  check(result.strengths.every(n=>n===3) && result.workflows.every(n=>n===4), 'each product has strengths and a complete workflow');
+  check(!result.brokenAnchors.length, 'broken anchors: ' + result.brokenAnchors);
+  check(!result.brokenImages.length, 'broken images: ' + result.brokenImages);
+  check(!result.privateLinks.length, 'no private project links');
+  check(!/JARVIS|Knowledge Brain|Command Center|34,510|48\/48/i.test(result.text), 'unrelated projects or stale metrics remain');
 }
 
 async function screenshot(name) {
@@ -239,14 +193,20 @@ try {
     source: `try { sessionStorage.setItem('architechBooted', '1'); } catch {}`,
   });
   for (const [width, height] of [[320, 740], [360, 800], [390, 844], [430, 932]]) {
-    await mobileAssertions(width, height);
+    await layoutAssertions(width, height, true);
   }
-  await desktopAssertions();
+  await layoutAssertions(768, 1024, false);
+  await layoutAssertions(1366, 768, false);
   await projectAssertions();
   await screenshot('desktop-hero');
   await value(`document.querySelector('#projects').scrollIntoView({behavior:'instant'}); true`);
   await sleep(600);
   await screenshot('desktop-projects');
+  for (const id of ['architech-i3d', 'architech-mcp', 'architech-assistant']) {
+    await value(`document.querySelector('#${id} .project-workflow').scrollIntoView({behavior:'instant',block:'center'}); true`);
+    await sleep(400);
+    await screenshot('desktop-' + id + '-workflow');
+  }
   await load(390, 844, true);
   await screenshot('mobile-hero');
   await value(`document.querySelector('#architech-i3d').scrollIntoView({behavior:'instant'}); true`);
