@@ -289,6 +289,7 @@
         const first = links[0], last = links[links.length - 1];
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); toggle.focus(); }
         else if (e.shiftKey && document.activeElement === toggle) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === toggle) { e.preventDefault(); first.focus(); }
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); toggle.focus(); }
       }
     });
