@@ -231,6 +231,10 @@ body.scene-dusk .lbl.level b{color:#efe7da}
 .plan-front{background:#958a83}
 .plan-back{background:#fff;transform:rotateY(180deg);display:grid;place-items:center;padding:3%}
 .plan-back img{max-height:100%;object-fit:contain}
+/* swap faces at the half-turn (~.11s with --ease): iOS Safari ignores backface-visibility for transformed children, so the pins showed through mirrored */
+.plan-front,.plan-back{transition:visibility 0s .11s}
+.plan-back,.plan-card.flipped .plan-front{visibility:hidden}
+.plan-card.flipped .plan-back{visibility:visible}
 .plan-crop{position:absolute;inset:0;overflow:hidden}
 .plan-crop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .45s,transform 1.4s var(--ease)}
 .plan-crop img.swap{opacity:0;transform:scale(1.03)}

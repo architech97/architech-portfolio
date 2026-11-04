@@ -194,7 +194,7 @@
 
   /* ---------- plan explorer ---------- */
   const FLOORS = [
-    { name: 'Ground floor', slide: 'plan-render-0.jpg', drawing: 'asset-026.jpg', rooms: [
+    { name: 'Ground floor', slide: 'plan-render-0.jpg', drawing: 'drawing-0.jpg', rooms: [
       [1, 'Entry vestibule', '', 485, 200], [2, 'Living room', '23′ × 19′', 707, 160], [3, 'Dining area', '23′ × 15′3″', 727, 325],
       [4, 'Mandir', '', 485, 110], [5, 'Kitchen', '', 988, 155], [6, 'Master bedroom lounge', '11′5″ × 11′9″', 483, 357],
       [7, 'Master bedroom', '15′2″ × 18′7″', 330, 520], [8, 'Master toilet', '10′10″ × 8′11″', 527, 478], [9, 'Dresser', '10′2″ × 11′5″', 325, 358],
@@ -221,7 +221,7 @@
     tabs.forEach((t, i) => t.setAttribute('aria-selected', String(i === f))); moveInk();
     const apply = () => {
       render.src = F.slide; render.alt = `Rendered ${F.name.toLowerCase()} plan with numbered rooms`;
-      drawing.src = A + F.drawing; drawing.alt = `${F.name} technical drawing`;
+      drawing.src = F.drawing.startsWith('asset-') ? A + F.drawing : F.drawing; drawing.alt = `${F.name} technical drawing`;
       caption.textContent = `${F.name} · ${card.classList.contains('flipped') ? 'technical drawing' : 'rendered plan'}`;
       list.innerHTML = F.rooms.map(r => `<li tabindex="0"><i>${String(r[0]).padStart(2, '0')}</i><span>${r[1]}</span><em>${r[2]}</em></li>`).join('');
       pins.innerHTML = F.rooms.map(r => `<button class="pin" style="left:${((r[3] - 241) / 859 * 100).toFixed(2)}%;top:${(r[4] / 700 * 100).toFixed(2)}%" aria-label="${r[1]}" data-cursor="View">${r[0]}<span class="pin-tip">${r[1]}${r[2] ? ' · ' + r[2] : ''}</span></button>`).join('');
