@@ -69,7 +69,7 @@ body.has-cursor,body.has-cursor a,body.has-cursor button,body.has-cursor #scene,
 .nav-links .nav-cta:hover{background:#000}
 .bar.is-dark .nav-links .nav-cta{background:var(--paper);color:var(--ink)}
 .nav-toggle{display:none;position:relative;width:44px;height:44px;border-radius:22px;-webkit-tap-highlight-color:transparent}
-.nav-toggle span{position:absolute;left:13px;right:13px;height:1.5px;border-radius:2px;background:currentColor;transition:transform .5s var(--ease)}
+.nav-toggle span{position:absolute;top:calc(50% - .75px);left:12px;right:12px;height:1.5px;border-radius:2px;background:currentColor;transition:transform .5s var(--ease)}
 .nav-toggle span:first-child{transform:translateY(-4px)}.nav-toggle span:last-child{transform:translateY(4px)}
 .navglass.open .nav-toggle span:first-child{transform:rotate(45deg)}.navglass.open .nav-toggle span:last-child{transform:rotate(-45deg)}
 /* the menu grows out of the capsule */
