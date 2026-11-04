@@ -112,9 +112,7 @@ for o in baked:
                 r = bmesh.ops.bisect_plane(bm, geom=geom, plane_co=(0, 0, z), plane_no=(0, 0, 1),
                                            clear_inner=keep_above, clear_outer=not keep_above, dist=1e-5)
                 cut = [e for e in r['geom_cut'] if isinstance(e, bmesh.types.BMEdge) and e.is_valid and e.is_boundary]
-                if cut:
-                    try: bmesh.ops.holes_fill(bm, edges=cut, sides=0)
-                    except Exception: pass
+                # no cap fill: a filled cut loop spans whole rooms (e.g. across the double-height void)
         if len(bm.faces) == 0: bm.free(); continue
         me = bpy.data.meshes.new(o.name + '_' + LEVELS[li]); bm.to_mesh(me); bm.free()
         for m in o.data.materials: me.materials.append(m)
