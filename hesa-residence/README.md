@@ -4,7 +4,8 @@ Static, responsive presentation using the original HESA Studio PDF. Serve this d
 
 ## Experience
 - Selectable original exterior hero views and a direct floor-plan entry.
-- Chapter navigation with source-backed project explanation.
+- Project-first editorial title, warm neutral palette and direct chapter navigation.
+- Clickable source room keys with verified locations from PDF slides5–7, including repeated room labels. A mobile room selector offers the same interaction.
 - Ground, first and second floor furnished plans, exact numbered room keys and technical drawings.
 - Fullscreen image inspection, original-size zoom, keyboard navigation and focus restoration.
 - Four uncropped original exterior views and a user-started cinematic image sequence.
