@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b1715">
+<title>Residence in Vasant Kunj — HESA Studio</title>
+<meta name="description" content="A three-level residence in Vasant Kunj, New Delhi. Interior design by HESA Studio — watch the drawings become the house.">
+<meta property="og:title" content="Residence in Vasant Kunj — HESA Studio">
+<meta property="og:description" content="Watch the drawings become the house: an interactive presentation of HESA Studio's residence in Vasant Kunj.">
+<meta property="og:image" content="../hesa-residence/assets/asset-022.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="../hesa-residence/assets/asset-025.jpg">
+<link rel="stylesheet" href="style.css?v=2">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="is-loading">
+
+<div class="loader" aria-hidden="true">
+  <div class="loader-mark"></div>
+  <div class="loader-line"><span></span></div>
+  <div class="loader-count">000</div>
+</div>
+
+<header class="bar">
+  <a class="bar-logo" href="#top" aria-label="HESA Studio — back to top"><span class="logo-mask"></span></a>
+  <nav aria-label="Sections">
+    <a href="#dwelling">The house</a>
+    <a href="#plans">Plans</a>
+    <a href="#light">Light</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="bar-progress" aria-hidden="true"><span></span></div>
+</header>
+
+<main id="top">
+
+<!-- 01 HERO: day to dusk, scrubbed by scroll -->
+<section class="hero" id="hero">
+  <div class="hero-sticky">
+    <div class="hero-media">
+      <img class="hero-img hero-day" src="../hesa-residence/assets/asset-025.jpg" alt="The residence in daylight: pale classical façade, columned porch and dark iron balcony railings">
+      <img class="hero-img hero-night" src="../hesa-residence/assets/asset-022.jpg" alt="The same view after dusk, with wall lights and warm interiors glowing">
+      <div class="hero-shade"></div>
+    </div>
+    <div class="hero-copy">
+      <p class="kicker reveal-up">HESA Studio · Interior design · New Delhi</p>
+      <h1 class="hero-title">
+        <span class="line"><span class="line-inner">Residence</span></span>
+        <span class="line"><span class="line-inner"><em>in</em> Vasant Kunj</span></span>
+      </h1>
+    </div>
+    <div class="hero-foot">
+      <div class="clock" aria-hidden="true">
+        <svg viewBox="0 0 120 64"><path class="arc" d="M6 60 A54 54 0 0 1 114 60"/><circle class="sun" r="5" cx="6" cy="60"/></svg>
+        <span class="clock-time">16:40</span>
+      </div>
+      <p class="hero-hint">Scroll — let the evening arrive</p>
+      <p class="hero-meta">Three levels<br>One family home</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 MANIFESTO -->
+<section class="manifesto" id="intro">
+  <p class="kicker">Whatever you feel</p>
+  <p class="manifesto-text" data-words>We design the feeling of you. A home that gathers everyone in one generous, double-height room — and gives each person a quiet corner of their own above it.</p>
+  <div class="stats">
+    <div><span class="stat-n" data-count="3">0</span><span class="stat-l">Levels around one lift core</span></div>
+    <div><span class="stat-n" data-count="6">0</span><span class="stat-l">Bedrooms, each with its own bath</span></div>
+    <div><span class="stat-n" data-count="5">0</span><span class="stat-l">Shared living spaces</span></div>
+    <div><span class="stat-n">23′×19′</span><span class="stat-l">Living room, open to the floor above</span></div>
+  </div>
+</section>
+
+<!-- 03 SIGNATURE: drawing to dwelling (three.js, scroll-driven) -->
+<section class="dwelling" id="dwelling" aria-label="From drawing to dwelling: the plans become the house as you scroll">
+  <div class="dwelling-sticky">
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <div class="labels" id="labels" aria-hidden="true"></div>
+    <div class="scene-fallback" hidden>
+      <img src="../hesa-residence/assets/asset-026.jpg" alt="Ground floor plan drawing">
+    </div>
+
+    <div class="chapter-panel">
+      <p class="kicker"><span id="ch-num">01</span> / 06 · From drawing to dwelling</p>
+      <div class="chapters">
+        <article class="chapter is-active" data-ch="0"><h2>It begins as a drawing.</h2><p>The ground-floor plan, exactly as HESA Studio drew it. Black lines on paper — for now.</p></article>
+        <article class="chapter" data-ch="1"><h2>The walls stand up.</h2><p>Every wall traced from the drawing rises to full height. The lens opens and the plan becomes a place.</p></article>
+        <article class="chapter" data-ch="2"><h2>Arrive. Gather.</h2><p>Past the mandir and the vestibule, the living room opens up — 23 by 19 feet, with dining, kitchen and a garden sit-out beyond.</p></article>
+        <article class="chapter" data-ch="3"><h2>A quieter floor lands.</h2><p>Three bedroom suites and a family lounge that looks down into the living room through the double-height void.</p></article>
+        <article class="chapter" data-ch="4"><h2>Space to switch off.</h2><p>Home theatre, gaming zone, a guest suite — and the largest terrace in the house.</p></article>
+        <article class="chapter" data-ch="5"><h2>Three levels. One core.</h2><p>Stair and lift stack in the same place on every floor. Drag to turn the house.</p></article>
+      </div>
+    </div>
+
+    <ol class="rail" aria-hidden="true"><li></li><li></li><li></li><li></li><li></li><li></li></ol>
+    <p class="scene-note">Walls traced from the original drawings · heights indicative</p>
+    <a class="skip" href="#plans">Skip ↓</a>
+    <p class="drag-hint" aria-hidden="true">Drag to orbit</p>
+  </div>
+</section>
+
+<!-- 04 PLAN EXPLORER -->
+<section class="plans" id="plans">
+  <div class="plans-head">
+    <p class="kicker">Walk the plan</p>
+    <h2 class="split">Every room, <em>where it belongs.</em></h2>
+  </div>
+  <div class="floor-tabs" role="tablist" aria-label="Choose a floor">
+    <button role="tab" aria-selected="true" data-floor="0"><span>00</span>Ground</button>
+    <button role="tab" aria-selected="false" data-floor="1"><span>01</span>First</button>
+    <button role="tab" aria-selected="false" data-floor="2"><span>02</span>Second</button>
+    <span class="tab-ink" aria-hidden="true"></span>
+  </div>
+  <div class="plans-body">
+    <ol class="room-list" id="room-list" aria-label="Rooms on this floor"></ol>
+    <div class="plan-card-wrap">
+      <div class="plan-card" id="plan-card">
+        <div class="plan-face plan-front">
+          <div class="plan-crop"><img id="plan-render" src="../hesa-residence/assets/source-slide-05.png" alt="Rendered ground floor plan with numbered rooms"></div>
+          <div class="pins" id="pins"></div>
+        </div>
+        <div class="plan-face plan-back">
+          <img id="plan-drawing" src="../hesa-residence/assets/asset-026.jpg" alt="Ground floor technical drawing" loading="lazy">
+        </div>
+      </div>
+      <div class="plan-tools">
+        <span id="plan-caption">Ground floor · rendered plan</span>
+        <button class="flip" id="flip" aria-pressed="false">Turn to the drawing ↻</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 LIGHT STUDY: draggable day/night wipe -->
+<section class="light" id="light">
+  <div class="light-head">
+    <p class="kicker">Light study</p>
+    <h2 class="split">Same house. <em>Two moods.</em></h2>
+    <p class="light-sub">Drag across the façade. Daylight shows the proportion — cornices, columns, tall glazing. After dark, the wall lights and the interiors take over.</p>
+  </div>
+  <div class="wipe" id="wipe" tabindex="0" role="slider" aria-label="Compare day and night" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+    <img src="../hesa-residence/assets/asset-024.jpg" alt="Second exterior view in daylight" loading="lazy">
+    <div class="wipe-top"><img src="../hesa-residence/assets/asset-023.jpg" alt="The same view at night" loading="lazy"></div>
+    <div class="wipe-handle"><span>↔</span></div>
+    <span class="wipe-tag wipe-tag-l">After dark</span><span class="wipe-tag wipe-tag-r">Daylight</span>
+  </div>
+</section>
+
+<!-- 06 HORIZONTAL GALLERY -->
+<section class="reel" id="reel" aria-label="Exterior views">
+  <div class="reel-sticky">
+    <div class="reel-head"><p class="kicker">The exterior edit</p><p class="reel-count"><span id="reel-n">01</span> / 05</p></div>
+    <div class="reel-track" id="reel-track">
+      <figure class="reel-item reel-intro"><h2>Classical lines,<br><em>a warm welcome.</em></h2><p>Pale plaster, carved capitals and dark iron railings — lit from the walls so the house glows rather than shines.</p></figure>
+      <figure class="reel-item"><button data-lb="0"><img src="../hesa-residence/assets/asset-025.jpg" alt="Daylight, entrance façade" loading="lazy"></button><figcaption>01 · The arrival, by day</figcaption></figure>
+      <figure class="reel-item"><button data-lb="1"><img src="../hesa-residence/assets/asset-022.jpg" alt="Night, entrance façade" loading="lazy"></button><figcaption>02 · The arrival, after dark</figcaption></figure>
+      <figure class="reel-item"><button data-lb="2"><img src="../hesa-residence/assets/asset-024.jpg" alt="Daylight, curved balcony and porch" loading="lazy"></button><figcaption>03 · The curved porch, by day</figcaption></figure>
+      <figure class="reel-item"><button data-lb="3"><img src="../hesa-residence/assets/asset-023.jpg" alt="Night, curved balcony and porch" loading="lazy"></button><figcaption>04 · The curved porch, after dark</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 07 STUDIO SERVICES -->
+<section class="studio" id="studio">
+  <div class="studio-head">
+    <p class="kicker">HESA Studio</p>
+    <h2 class="split">From the first idea <em>to the final detail.</em></h2>
+  </div>
+  <ul class="services" id="services">
+    <li data-img="../hesa-residence/assets/asset-005.jpg"><span>01</span>Architecture consultancy<i>→</i></li>
+    <li data-img="../hesa-residence/assets/asset-003.jpg"><span>02</span>Interior design consultancy<i>→</i></li>
+    <li data-img="../hesa-residence/assets/asset-006.jpg"><span>03</span>Turnkey execution<i>→</i></li>
+    <li data-img="../hesa-residence/assets/asset-007.jpg"><span>04</span>Design support services<i>→</i></li>
+  </ul>
+  <div class="service-float" aria-hidden="true"><img alt=""></div>
+</section>
+
+<!-- 08 CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-media"><img src="../hesa-residence/assets/asset-029.jpg" alt="Stoneware vases and dried pampas grass" loading="lazy"></div>
+  <div class="contact-copy">
+    <p class="kicker">Contact</p>
+    <h2 class="split">Let’s design <em>the feeling of you.</em></h2>
+    <a class="contact-mail" href="mailto:hello@hesastudio.com">hello@hesastudio.com</a>
+    <p class="contact-tel"><a href="tel:+918826886455">+91 88268 86455</a><a href="tel:+919990482944">+91 99904 82944</a></p>
+    <a class="pdf" href="../hesa-residence/assets/residence-presentation.pdf" target="_blank" rel="noopener">Original presentation (PDF, 15 pages) ↗</a>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <span class="logo-mask"></span>
+  <p>Residence in Vasant Kunj · Design &amp; imagery © HESA Studio. Images are design visualisations; the 3D model is traced from the presentation drawings.</p>
+  <a href="#top">Back to top ↑</a>
+</footer>
+
+<dialog class="lightbox" id="lightbox">
+  <button class="lb-close" aria-label="Close">×</button>
+  <img alt="">
+  <div class="lb-nav"><button class="lb-prev" aria-label="Previous">←</button><span class="lb-cap"></span><button class="lb-next" aria-label="Next">→</button></div>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="main.js?v=2"></script>
+<script type="module" src="scene.js?v=2"></script>
+</body>
+</html>
