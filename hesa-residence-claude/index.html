@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#1b1715">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171311" id="theme-color">
 <title>Residence in Vasant Kunj — HESA Studio</title>
 <meta name="description" content="A three-level residence in Vasant Kunj, New Delhi. Interior design by HESA Studio — watch the drawings become the house.">
 <meta property="og:title" content="Residence in Vasant Kunj — HESA Studio">
@@ -17,7 +17,8 @@
 <link rel="preload" href="hesa-model.glb" as="fetch" crossorigin media="(min-width: 861px) and (pointer: fine)">
 <link rel="preload" href="hesa-model-lite.glb" as="fetch" crossorigin media="(max-width: 860px), (pointer: coarse)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%236f5f57%27/%3E%3Ctext x=%2732%27 y=%2744%27 font-family=%27Georgia%27 font-size=%2734%27 text-anchor=%27middle%27 fill=%27%23f3eee6%27%3EH%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
+<script>try{if(sessionStorage.getItem('hesa-intro')==='1')document.documentElement.classList.add('intro-seen')}catch(e){}</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
 <body class="is-loading">
@@ -37,25 +38,43 @@
       <animate attributeName="baseFrequency" dur="16s" values="0.011 0.034;0.016 0.026;0.011 0.034" repeatCount="indefinite"/>
     </feTurbulence>
     <feComposite in="map" in2="ripple" operator="arithmetic" k1="0" k2="1" k3="0.16" k4="-0.08" result="lens"/>
-    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-58" xChannelSelector="R" yChannelSelector="B" result="dr"/>
+    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-42" xChannelSelector="R" yChannelSelector="B" result="dr"/>
     <feColorMatrix in="dr" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cr"/>
-    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-52" xChannelSelector="R" yChannelSelector="B" result="dg"/>
+    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-39" xChannelSelector="R" yChannelSelector="B" result="dg"/>
     <feColorMatrix in="dg" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cg"/>
-    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-46" xChannelSelector="R" yChannelSelector="B" result="db"/>
+    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-36" xChannelSelector="R" yChannelSelector="B" result="db"/>
     <feColorMatrix in="db" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cb"/>
     <feBlend in="cr" in2="cg" mode="screen" result="rg"/>
     <feBlend in="rg" in2="cb" mode="screen"/>
   </filter>
 </svg>
-<header class="bar">
-  <a class="bar-logo" href="#top" aria-label="HESA Studio — back to top"><span class="glass" aria-hidden="true"><span class="glass-shine"></span></span><span class="logo-mask"></span></a>
-  <nav aria-label="Sections">
-    <a href="#dwelling">The house</a>
-    <a href="#plans">Plans</a>
-    <a href="#light">Light</a>
-    <a href="#contact">Contact</a>
-  </nav>
-  <div class="bar-progress" aria-hidden="true"><span></span></div>
+<header class="bar" id="bar">
+  <div class="navglass" id="navglass">
+    <span class="glass" aria-hidden="true"><span class="glass-shine"></span></span>
+    <div class="nav-row">
+      <a class="bar-logo" href="#top" aria-label="HESA Studio — back to top"><span class="logo-mask"></span></a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#dwelling" data-sec="dwelling">The house</a>
+        <a href="#plans" data-sec="plans">Plans</a>
+        <a href="#light" data-sec="light">Light</a>
+        <a href="#studio" data-sec="studio">Studio</a>
+        <a class="nav-cta" href="#contact" data-sec="contact">Contact</a>
+      </nav>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu"><span></span><span></span></button>
+    </div>
+    <div class="nav-menu" id="nav-menu">
+      <div class="nav-menu-inner">
+        <a href="#dwelling" data-sec="dwelling"><small>01</small>The house<i>→</i></a>
+        <a href="#plans" data-sec="plans"><small>02</small>Plans<i>→</i></a>
+        <a href="#light" data-sec="light"><small>03</small>Light study<i>→</i></a>
+        <a href="#reel"><small>04</small>Exterior<i>→</i></a>
+        <a href="#studio" data-sec="studio"><small>05</small>Studio<i>→</i></a>
+        <a href="#contact" data-sec="contact"><small>06</small>Contact<i>→</i></a>
+        <div class="nav-menu-foot"><a href="mailto:hello@hesastudio.com">hello@hesastudio.com</a><a href="tel:+918826886455">+91 88268 86455</a></div>
+      </div>
+    </div>
+    <div class="bar-progress" aria-hidden="true"><span></span></div>
+  </div>
 </header>
 
 <main id="top">
@@ -246,8 +265,8 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="main.js?v=7"></script>
-<script type="module" src="hero.js?v=7"></script>
-<script type="module" src="scene.js?v=7"></script>
+<script src="main.js?v=8"></script>
+<script type="module" src="hero.js?v=8"></script>
+<script type="module" src="scene.js?v=8"></script>
 </body>
 </html>

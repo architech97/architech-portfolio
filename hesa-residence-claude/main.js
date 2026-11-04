@@ -32,34 +32,74 @@
     for (const k in track) { const el = track[k]; if (!el) continue; const r = el.getBoundingClientRect(); L[k] = { top: r.top + scrollY, h: el.offsetHeight }; }
     measureReel();
     themed = $$('[data-theme], #dwelling').map(el => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, dark: el.dataset.theme === 'dark' }; });
-    const lr = logo.getBoundingClientRect(); logoBox = { x: lr.left, y: lr.top, w: lr.width, h: lr.height };
+    const lr = nav.getBoundingClientRect(); logoBox = { x: lr.left, y: lr.top, w: lr.width, h: lr.height };
+    ['dwelling', 'plans', 'light', 'studio', 'contact'].forEach(id => { const el = document.getElementById(id); if (el) L['sec_' + id] = el.getBoundingClientRect().top + scrollY; });
+    updateLens();
   }
   const progressOf = (k, y) => clamp((y - L[k].top) / (L[k].h - vh));
   const inView = (k, y, pad = 0) => y + vh > L[k].top - pad && y < L[k].top + L[k].h + pad;
 
-  /* ---------- header: liquid glass behind the HESA mark + light/dark text ---------- */
-  const bar = $('.bar'), logo = $('.bar-logo'), glass = $('.glass');
-  let themed = [], logoBox = { x: 0, y: 0, w: 1, h: 1 }, barDark = null, glassHover = false, sx = 1, sy = 1;
-  // SVG refraction inside backdrop-filter is a Chromium feature; everyone else gets frosted glass
+  /* ---------- header: one Liquid Glass capsule (logo + navigation), adapts to the section below ---------- */
+  const bar = $('.bar'), nav = $('#navglass'), glass = $('.glass', nav), toggle = $('.nav-toggle'), themeMeta = $('#theme-color');
+  const secLinks = $$('[data-sec]', nav), lensImg = $('#lg-refract feImage');
+  let themed = [], logoBox = { x: 0, y: 0, w: 1, h: 1 }, barDark = null, glassHover = false, sx = 1, sy = 1, current = null, menuOpen = false, lensKey = '';
+  // SVG refraction inside backdrop-filter is a Chromium feature; Safari and Firefox get the frosted variant
   if (navigator.userAgentData?.brands?.some(b => /Chromium/.test(b.brand))) document.documentElement.classList.add('lg-svg');
-  logo.addEventListener('pointerenter', () => glassHover = true);
-  logo.addEventListener('pointerleave', () => glassHover = false);
+  nav.addEventListener('pointerenter', () => glassHover = true);
+  nav.addEventListener('pointerleave', () => glassHover = false);
+  // the refraction map is drawn for the capsule's real size, so the lens edge is the same thickness all round
+  function lensMap(w, h) {
+    w = Math.round(w); h = Math.round(h); const r = h / 2, b = Math.min(12, h * 0.22);
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><defs>` +
+      `<linearGradient id='r' x1='100%' y1='0%' x2='0%' y2='0%'><stop offset='0%' stop-color='#000'/><stop offset='100%' stop-color='#f00'/></linearGradient>` +
+      `<linearGradient id='b' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#000'/><stop offset='100%' stop-color='#00f'/></linearGradient>` +
+      `<filter id='f'><feGaussianBlur stdDeviation='${(b * 0.55).toFixed(1)}'/></filter></defs>` +
+      `<rect width='${w}' height='${h}' fill='#000'/><rect width='${w}' height='${h}' rx='${r}' fill='url(#r)'/>` +
+      `<rect width='${w}' height='${h}' rx='${r}' fill='url(#b)' style='mix-blend-mode:difference'/>` +
+      `<rect x='${b}' y='${b}' width='${w - 2 * b}' height='${h - 2 * b}' rx='${Math.max(0, r - b)}' fill='rgb(128,128,128)' fill-opacity='.94' filter='url(#f)'/></svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+  function updateLens() {
+    if (!lensImg || menuOpen) return;
+    const r = nav.getBoundingClientRect(), key = Math.round(r.width) + 'x' + Math.round(r.height);
+    if (key === lensKey) return; lensKey = key;
+    lensImg.setAttribute('href', lensMap(r.width, r.height));
+  }
   function headerTheme(y) {
-    const probe = y + 36;
+    const probe = y + 40;
     const hit = themed.find(t => probe >= t.top && probe < t.bottom);
     const dark = hit ? (hit.dark || (hit.el.id === 'dwelling' && document.body.classList.contains('scene-dusk'))) : false;
-    if (dark !== barDark) { bar.classList.toggle('is-dark', dark); barDark = dark; }
+    if (dark !== barDark) {
+      bar.classList.toggle('is-dark', dark); barDark = dark;
+      themeMeta?.setAttribute('content', dark ? '#171311' : '#f3eee6');   // Safari tints its toolbars to match
+    }
+    // which section are we in? (drives the dot under the nav link)
+    const mid = y + vh * 0.45;
+    const sec = ['contact', 'studio', 'light', 'plans', 'dwelling'].find(id => L['sec_' + id] && mid >= L['sec_' + id]) || null;
+    if (sec !== current) { current = sec; secLinks.forEach(a => a.setAttribute('aria-current', String(a.dataset.sec === sec))); }
   }
-  function glassUpdate(dt) {
-    // the glass leans with scroll speed and swells on hover, then springs back (CSS adds the overshoot)
+  function glassUpdate() {
+    // the capsule leans with scroll speed and swells under the pointer, then springs back (CSS adds the overshoot)
+    if (menuOpen) return;
     const v = Math.min(1, Math.abs(velocity) / 40);
-    const tx = 1 + v * 0.16 + (glassHover ? 0.07 : 0), ty = 1 - v * 0.08 + (glassHover ? 0.1 : 0);
-    if (Math.abs(tx - sx) > 0.002 || Math.abs(ty - sy) > 0.002) { sx = tx; sy = ty; glass.style.setProperty('--sx', sx.toFixed(3)); glass.style.setProperty('--sy', sy.toFixed(3)); }
+    const tx = 1 + v * 0.025 + (glassHover ? 0.008 : 0), ty = 1 - v * 0.06 + (glassHover ? 0.04 : 0);
+    if (Math.abs(tx - sx) > 0.001 || Math.abs(ty - sy) > 0.002) { sx = tx; sy = ty; glass.style.setProperty('--sx', sx.toFixed(4)); glass.style.setProperty('--sy', sy.toFixed(3)); }
   }
   if (fine && !reduce) addEventListener('pointermove', e => {
-    const x = clamp((e.clientX - logoBox.x) / logoBox.w, -0.6, 1.6), y = clamp((e.clientY - logoBox.y) / logoBox.h, -1.5, 2.5);
+    const x = clamp((e.clientX - logoBox.x) / logoBox.w, -0.3, 1.3), y = clamp((e.clientY - logoBox.y) / logoBox.h, -1.5, 2.5);
     glass.style.setProperty('--mx', (x * 100).toFixed(1) + '%'); glass.style.setProperty('--my', (y * 100).toFixed(1) + '%');
   }, { passive: true });
+  // the mobile menu: the capsule itself expands into a sheet
+  function setMenu(open) {
+    menuOpen = open; nav.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open)); toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    glass.style.setProperty('--sx', 1); glass.style.setProperty('--sy', 1); sx = sy = 1;
+    if (open) lenis?.stop(); else { lenis?.start(); lensKey = ''; setTimeout(updateLens, 650); }
+  }
+  toggle.addEventListener('click', () => setMenu(!menuOpen));
+  $$('.nav-menu a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen) { setMenu(false); toggle.focus(); } });
+  document.addEventListener('pointerdown', e => { if (menuOpen && !nav.contains(e.target)) setMenu(false); });
 
   /* ---------- loader: the ground-floor plan draws itself ---------- */
   const count = $('.loader-count'), t0 = performance.now();
@@ -68,7 +108,9 @@
   requestAnimationFrame(pctTick);
   let finished = false, heroLoaded = false;
   [A + 'asset-025.jpg', A + 'asset-022.jpg'].forEach(src => { const i = new Image(); i.onload = i.onerror = () => { if (i.complete) heroLoaded = true; }; i.src = src; });
-  const minTime = reduce ? 300 : 2300;
+  let seen = false; try { seen = sessionStorage.getItem('hesa-intro') === '1'; sessionStorage.setItem('hesa-intro', '1'); } catch (e) {}
+  if (seen) document.documentElement.classList.add('intro-seen');
+  const minTime = reduce || seen ? 350 : 2100;
   function tryFinish() {
     if (finished) return;
     if (performance.now() - t0 < minTime || (!heroLoaded && performance.now() - t0 < 7000)) return void setTimeout(tryFinish, 120);
@@ -140,6 +182,7 @@
   const mio = new IntersectionObserver(es => es.forEach(e => { const m = marquees.find(q => q.el === e.target); if (m) m.vis = e.isIntersecting; }));
   marquees.forEach(m => mio.observe(m.el));
   function marqueeUpdate(dt) {
+    if (reduce) return;
     for (const m of marquees) {
       if (!m.vis) continue;
       if (!m.w) m.w = m.inner.scrollWidth / 2;
@@ -167,7 +210,7 @@
   const list = $('#room-list'), pins = $('#pins'), render = $('#plan-render'), drawing = $('#plan-drawing'), spot = $('#plan-spot'),
     card = $('#plan-card'), flip = $('#flip'), caption = $('#plan-caption'), tabs = $$('.floor-tabs [role=tab]'), ink = $('.tab-ink');
   let floor = 0;
-  function moveInk() { const b = tabs[floor]; ink.style.width = (b.offsetWidth - 24) + 'px'; ink.style.transform = `translateX(${b.offsetLeft}px)`; }
+  function moveInk() { const b = tabs[floor]; ink.style.width = b.offsetWidth + 'px'; ink.style.transform = `translateX(${b.offsetLeft}px)`; }
   function hot(i, on) {
     $$('li', list)[i]?.classList.toggle('hot', on); const pin = $$('.pin', pins)[i]; pin?.classList.toggle('hot', on);
     if (on && pin) { spot.style.setProperty('--sx', pin.style.left); spot.style.setProperty('--sy', pin.style.top); }
@@ -255,7 +298,7 @@
     document.body.classList.add('has-cursor');
     addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; if (!cursorOn) { cursorOn = true; cursor.classList.add('on'); } }, { passive: true });
     document.addEventListener('pointerover', e => {
-      if (e.target.closest('.bar-logo')) { cursor.classList.remove('big', 'labelled'); cLabel.textContent = ''; return; }   // the glass reacts instead
+      if (e.target.closest('.navglass')) { cursor.classList.remove('big', 'labelled'); cLabel.textContent = ''; return; }   // the glass reacts instead
       const t = e.target.closest('a, button, [data-cursor], .wipe, #scene, .services li');
       cursor.classList.toggle('big', !!t);
       const label = t ? (t.dataset.cursor || (t.matches('.wipe') ? 'Drag' : t.matches('#scene') ? (document.querySelector('.drag-hint.on') ? 'Drag' : '') : t.matches('.services li') ? 'Explore' : '')) : '';
@@ -304,7 +347,7 @@
       prog.style.transform = `scaleX(${clamp(y / docH).toFixed(4)})`;
     }
     headerTheme(y);
-    glassUpdate(dt);
+    glassUpdate();
     if (inView('reel', y) && (y !== lastY || Math.abs(velocity) > 0.01)) reelUpdate(y);
     lastY = y;
     marqueeUpdate(dt);
