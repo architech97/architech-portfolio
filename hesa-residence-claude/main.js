@@ -31,9 +31,35 @@
     vh = innerHeight; vw = innerWidth; docH = document.documentElement.scrollHeight - vh;
     for (const k in track) { const el = track[k]; if (!el) continue; const r = el.getBoundingClientRect(); L[k] = { top: r.top + scrollY, h: el.offsetHeight }; }
     measureReel();
+    themed = $$('[data-theme], #dwelling').map(el => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, dark: el.dataset.theme === 'dark' }; });
+    const lr = logo.getBoundingClientRect(); logoBox = { x: lr.left, y: lr.top, w: lr.width, h: lr.height };
   }
   const progressOf = (k, y) => clamp((y - L[k].top) / (L[k].h - vh));
   const inView = (k, y, pad = 0) => y + vh > L[k].top - pad && y < L[k].top + L[k].h + pad;
+
+  /* ---------- header: liquid glass behind the HESA mark + light/dark text ---------- */
+  const bar = $('.bar'), logo = $('.bar-logo'), glass = $('.glass');
+  let themed = [], logoBox = { x: 0, y: 0, w: 1, h: 1 }, barDark = null, glassHover = false, sx = 1, sy = 1;
+  // SVG refraction inside backdrop-filter is a Chromium feature; everyone else gets frosted glass
+  if (navigator.userAgentData?.brands?.some(b => /Chromium/.test(b.brand))) document.documentElement.classList.add('lg-svg');
+  logo.addEventListener('pointerenter', () => glassHover = true);
+  logo.addEventListener('pointerleave', () => glassHover = false);
+  function headerTheme(y) {
+    const probe = y + 36;
+    const hit = themed.find(t => probe >= t.top && probe < t.bottom);
+    const dark = hit ? (hit.dark || (hit.el.id === 'dwelling' && document.body.classList.contains('scene-dusk'))) : false;
+    if (dark !== barDark) { bar.classList.toggle('is-dark', dark); barDark = dark; }
+  }
+  function glassUpdate(dt) {
+    // the glass leans with scroll speed and swells on hover, then springs back (CSS adds the overshoot)
+    const v = Math.min(1, Math.abs(velocity) / 40);
+    const tx = 1 + v * 0.16 + (glassHover ? 0.07 : 0), ty = 1 - v * 0.08 + (glassHover ? 0.1 : 0);
+    if (Math.abs(tx - sx) > 0.002 || Math.abs(ty - sy) > 0.002) { sx = tx; sy = ty; glass.style.setProperty('--sx', sx.toFixed(3)); glass.style.setProperty('--sy', sy.toFixed(3)); }
+  }
+  if (fine && !reduce) addEventListener('pointermove', e => {
+    const x = clamp((e.clientX - logoBox.x) / logoBox.w, -0.6, 1.6), y = clamp((e.clientY - logoBox.y) / logoBox.h, -1.5, 2.5);
+    glass.style.setProperty('--mx', (x * 100).toFixed(1) + '%'); glass.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+  }, { passive: true });
 
   /* ---------- loader: the ground-floor plan draws itself ---------- */
   const count = $('.loader-count'), t0 = performance.now();
@@ -229,6 +255,7 @@
     document.body.classList.add('has-cursor');
     addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; if (!cursorOn) { cursorOn = true; cursor.classList.add('on'); } }, { passive: true });
     document.addEventListener('pointerover', e => {
+      if (e.target.closest('.bar-logo')) { cursor.classList.remove('big', 'labelled'); cLabel.textContent = ''; return; }   // the glass reacts instead
       const t = e.target.closest('a, button, [data-cursor], .wipe, #scene, .services li');
       cursor.classList.toggle('big', !!t);
       const label = t ? (t.dataset.cursor || (t.matches('.wipe') ? 'Drag' : t.matches('#scene') ? (document.querySelector('.drag-hint.on') ? 'Drag' : '') : t.matches('.services li') ? 'Explore' : '')) : '';
@@ -276,6 +303,8 @@
       if (inView('contact', y)) contactUpdate(y);
       prog.style.transform = `scaleX(${clamp(y / docH).toFixed(4)})`;
     }
+    headerTheme(y);
+    glassUpdate(dt);
     if (inView('reel', y) && (y !== lastY || Math.abs(velocity) > 0.01)) reelUpdate(y);
     lastY = y;
     marqueeUpdate(dt);

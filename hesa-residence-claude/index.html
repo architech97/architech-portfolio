@@ -17,7 +17,7 @@
 <link rel="preload" href="hesa-model.glb" as="fetch" crossorigin media="(min-width: 861px) and (pointer: fine)">
 <link rel="preload" href="hesa-model-lite.glb" as="fetch" crossorigin media="(max-width: 860px), (pointer: coarse)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%236f5f57%27/%3E%3Ctext x=%2732%27 y=%2744%27 font-family=%27Georgia%27 font-size=%2734%27 text-anchor=%27middle%27 fill=%27%23f3eee6%27%3EH%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
 <body class="is-loading">
@@ -30,8 +30,25 @@
 <div class="cursor" aria-hidden="true"><span class="cursor-label"></span></div>
 <div class="grain" aria-hidden="true"></div>
 
+<svg class="lg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="lg-refract" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feImage href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='80' viewBox='0 0 200 80'%3E%3Cdefs%3E%3ClinearGradient id='r' x1='100%' y1='0%' x2='0%' y2='0%'%3E%3Cstop offset='0%' stop-color='#000'/%3E%3Cstop offset='100%' stop-color='#f00'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='0%' y1='0%' x2='0%' y2='100%'%3E%3Cstop offset='0%' stop-color='#000'/%3E%3Cstop offset='100%' stop-color='#00f'/%3E%3C/linearGradient%3E%3Cfilter id='f'%3E%3CfeGaussianBlur stdDeviation='7'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='200' height='80' fill='#000'/%3E%3Crect width='200' height='80' rx='40' fill='url(#r)'/%3E%3Crect width='200' height='80' rx='40' fill='url(#b)' style='mix-blend-mode:difference'/%3E%3Crect x='13' y='11' width='174' height='58' rx='29' fill='rgb(128,128,128)' fill-opacity='.94' filter='url(#f)'/%3E%3C/svg%3E" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.011 0.034" numOctaves="1" seed="4" result="ripple">
+      <animate attributeName="baseFrequency" dur="16s" values="0.011 0.034;0.016 0.026;0.011 0.034" repeatCount="indefinite"/>
+    </feTurbulence>
+    <feComposite in="map" in2="ripple" operator="arithmetic" k1="0" k2="1" k3="0.16" k4="-0.08" result="lens"/>
+    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-58" xChannelSelector="R" yChannelSelector="B" result="dr"/>
+    <feColorMatrix in="dr" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cr"/>
+    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-52" xChannelSelector="R" yChannelSelector="B" result="dg"/>
+    <feColorMatrix in="dg" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cg"/>
+    <feDisplacementMap in="SourceGraphic" in2="lens" scale="-46" xChannelSelector="R" yChannelSelector="B" result="db"/>
+    <feColorMatrix in="db" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cb"/>
+    <feBlend in="cr" in2="cg" mode="screen" result="rg"/>
+    <feBlend in="rg" in2="cb" mode="screen"/>
+  </filter>
+</svg>
 <header class="bar">
-  <a class="bar-logo" href="#top" aria-label="HESA Studio — back to top"><span class="logo-mask"></span></a>
+  <a class="bar-logo" href="#top" aria-label="HESA Studio — back to top"><span class="glass" aria-hidden="true"><span class="glass-shine"></span></span><span class="logo-mask"></span></a>
   <nav aria-label="Sections">
     <a href="#dwelling">The house</a>
     <a href="#plans">Plans</a>
@@ -44,7 +61,7 @@
 <main id="top">
 
 <!-- 01 HERO: day to dusk, scrubbed by scroll -->
-<section class="hero" id="hero">
+<section class="hero" id="hero" data-theme="dark">
   <div class="hero-sticky">
     <div class="hero-media">
       <canvas id="hero-gl" aria-hidden="true"></canvas>
@@ -153,7 +170,7 @@
 </section>
 
 <!-- 05 LIGHT STUDY: draggable day/night wipe -->
-<section class="light" id="light">
+<section class="light" id="light" data-theme="dark">
   <div class="light-head">
     <p class="kicker">Light study</p>
     <h2 class="split">Same house. <em>Two moods.</em></h2>
@@ -168,7 +185,7 @@
 </section>
 
 <!-- 06 HORIZONTAL GALLERY -->
-<section class="reel" id="reel" aria-label="Exterior views">
+<section class="reel" id="reel" data-theme="dark" aria-label="Exterior views">
   <div class="reel-sticky">
     <div class="reel-head"><p class="kicker">The exterior edit</p><p class="reel-count"><span id="reel-n">01</span> / 05</p></div>
     <div class="reel-track" id="reel-track">
@@ -181,7 +198,7 @@
   </div>
 </section>
 
-<div class="marquee marquee-dark" data-dir="-1" aria-hidden="true"><div class="marquee-inner">
+<div class="marquee marquee-dark" data-theme="dark" data-dir="-1" aria-hidden="true"><div class="marquee-inner">
   <span>Architecture consultancy</span><i>✦</i><span><em>Interior design</em></span><i>✦</i><span>Turnkey execution</span><i>✦</i><span><em>Design support</em></span><i>✦</i>
   <span>Architecture consultancy</span><i>✦</i><span><em>Interior design</em></span><i>✦</i><span>Turnkey execution</span><i>✦</i><span><em>Design support</em></span><i>✦</i>
 </div></div>
@@ -202,7 +219,7 @@
 </section>
 
 <!-- 08 CONTACT -->
-<section class="contact" id="contact">
+<section class="contact" id="contact" data-theme="dark">
   <div class="contact-media rv"><img decoding="async" src="../hesa-residence/assets/asset-029.jpg" alt="Stoneware vases and dried pampas grass" loading="lazy"></div>
   <div class="contact-copy">
     <p class="kicker">Contact</p>
@@ -214,7 +231,7 @@
 </section>
 </main>
 
-<footer class="foot">
+<footer class="foot" data-theme="dark">
   <span class="logo-mask"></span>
   <p>Residence in Vasant Kunj · Design &amp; imagery © HESA Studio. Images are design visualisations. The 3D sequence uses the studio’s own design model.</p>
   <a href="#top">Back to top ↑</a>
@@ -229,8 +246,8 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="main.js?v=6"></script>
-<script type="module" src="hero.js?v=6"></script>
-<script type="module" src="scene.js?v=6"></script>
+<script src="main.js?v=7"></script>
+<script type="module" src="hero.js?v=7"></script>
+<script type="module" src="scene.js?v=7"></script>
 </body>
 </html>
