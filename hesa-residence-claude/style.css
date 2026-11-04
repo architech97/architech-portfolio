@@ -122,9 +122,9 @@ body.has-cursor,body.has-cursor a,body.has-cursor button,body.has-cursor #scene,
 .hero.has-gl .hero-img{display:none}
 .hero-copy{will-change:transform,opacity}
 .hero-night{opacity:0}
-.hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(23,19,17,.5) 0%,rgba(23,19,17,0) 34%,rgba(23,19,17,0) 55%,rgba(23,19,17,.72) 100%)}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(23,19,17,.46) 0%,rgba(23,19,17,.2) 36%,rgba(23,19,17,0) 62%),linear-gradient(180deg,rgba(23,19,17,.5) 0%,rgba(23,19,17,0) 34%,rgba(23,19,17,0) 55%,rgba(23,19,17,.72) 100%)}
 .hero-copy{position:absolute;left:var(--pad);right:var(--pad);bottom:clamp(120px,19vh,190px)}
-.hero-copy .kicker{color:rgba(243,238,230,.8)}
+.hero-copy .kicker{color:rgba(243,238,230,.92);text-shadow:0 1px 14px rgba(23,19,17,.45)}
 .hero-title{font-size:clamp(58px,11.5vw,188px);line-height:.88}
 .hero-title em{font-size:.62em;vertical-align:.18em;margin-right:.08em}
 .line{display:block;overflow:hidden;padding-bottom:.06em}
