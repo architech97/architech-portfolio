@@ -1,0 +1,236 @@
+[
+ {
+  "id": "G06",
+  "name": "G06 M. BEDROOM",
+  "dims": "15ft2in x18ft7in",
+  "area": 26.2,
+  "bx": 12.99,
+  "by": 2.545,
+  "bz": 0.6
+ },
+ {
+  "id": "G07",
+  "name": "G07 CLOSET",
+  "dims": "10ft2in x11ft5in",
+  "area": 10.8,
+  "bx": 8.194,
+  "by": 1.787,
+  "bz": 0.6
+ },
+ {
+  "id": "G08",
+  "name": "G08 M.BEDROOM LOUNGE",
+  "dims": "11ft5in x11ft9in",
+  "area": 12.7,
+  "bx": 8.251,
+  "by": 5.343,
+  "bz": 0.6
+ },
+ {
+  "id": "G09",
+  "name": "G09 M.TOILET",
+  "dims": "10ft10in x8ft11in",
+  "area": 9.0,
+  "bx": 11.519,
+  "by": 6.622,
+  "bz": 0.6
+ },
+ {
+  "id": "G10",
+  "name": "G10 TOILET",
+  "dims": "10ft7in x8ft11in/5ft11in",
+  "area": 7.4,
+  "bx": 14.469,
+  "by": 5.988,
+  "bz": 0.6
+ },
+ {
+  "id": "G11",
+  "name": "G11 BEDROOM",
+  "dims": "13ft7in x16ft8in",
+  "area": 21.0,
+  "bx": 13.291,
+  "by": 10.462,
+  "bz": 0.6
+ },
+ {
+  "id": "G12",
+  "name": "G12 PWD.ROOM",
+  "dims": "5ft5in x9ft7in",
+  "area": 4.8,
+  "bx": 14.361,
+  "by": 13.473,
+  "bz": 0.6
+ },
+ {
+  "id": "G04",
+  "name": "G04 KITCHEN",
+  "dims": "",
+  "area": 22.6,
+  "bx": 2.878,
+  "by": 16.543,
+  "bz": 0.6
+ },
+ {
+  "id": "G02_G03",
+  "name": "G02_G03 LIVING + DINING continuous common zone",
+  "dims": "LIVING23ft x19ft; DINING23ft x15ft3in",
+  "area": 76.4,
+  "bx": 5.435,
+  "by": 10.518,
+  "bz": 0.6
+ },
+ {
+  "id": "G13_LOBBY",
+  "name": "G13_LOBBY retained stair/lift approach outside core",
+  "dims": "",
+  "area": 8.1,
+  "bx": 11.709,
+  "by": 16.543,
+  "bz": 0.6
+ },
+ {
+  "id": "G05",
+  "name": "G05 MANDIR",
+  "dims": "",
+  "area": 9.0,
+  "bx": 1.613,
+  "by": 6.035,
+  "bz": 0.6
+ },
+ {
+  "id": "G01",
+  "name": "G01 VESTIBULE",
+  "dims": "",
+  "area": 10.3,
+  "bx": 4.729,
+  "by": 5.286,
+  "bz": 0.6
+ },
+ {
+  "id": "F01",
+  "name": "F01 Bedroom",
+  "dims": "15'2\" X 16'8\"",
+  "area": 23.4,
+  "bx": 13.291,
+  "by": 2.548,
+  "bz": 3.95
+ },
+ {
+  "id": "F02",
+  "name": "F02 Bedroom",
+  "dims": "15'2\" X 13'9\"",
+  "area": 19.3,
+  "bx": 8.551,
+  "by": 2.549,
+  "bz": 3.95
+ },
+ {
+  "id": "F03",
+  "name": "F03 Bedroom",
+  "dims": "13'7\" X 16'8\"",
+  "area": 21.0,
+  "bx": 13.291,
+  "by": 10.462,
+  "bz": 3.95
+ },
+ {
+  "id": "F04",
+  "name": "F04 Toilet",
+  "dims": "6-3\"-10\"X7'",
+  "area": 6.2,
+  "bx": 14.211,
+  "by": 5.932,
+  "bz": 3.95
+ },
+ {
+  "id": "F05",
+  "name": "F05 Toilet",
+  "dims": "6'-6\"X10'10\"",
+  "area": 6.5,
+  "bx": 7.452,
+  "by": 6.628,
+  "bz": 3.95
+ },
+ {
+  "id": "F06",
+  "name": "F06 Toilet",
+  "dims": "5'-5\"X10''7\"",
+  "area": 5.3,
+  "bx": 14.211,
+  "by": 13.474,
+  "bz": 3.95
+ },
+ {
+  "id": "F07",
+  "name": "F07 Vestibule",
+  "dims": "",
+  "area": 13.7,
+  "bx": 10.521,
+  "by": 5.993,
+  "bz": 3.95
+ },
+ {
+  "id": "F08",
+  "name": "F08 Family lounge / supported-floor envelope",
+  "dims": "19'5\" X17'8\"",
+  "area": 40.2,
+  "bx": 7.957,
+  "by": 11.225,
+  "bz": 3.95
+ },
+ {
+  "id": "F09A",
+  "name": "F09A Upper store",
+  "dims": "",
+  "area": 1.8,
+  "bx": 1.032,
+  "by": 8.964,
+  "bz": 3.95
+ },
+ {
+  "id": "F09B",
+  "name": "F09B Lower store",
+  "dims": "",
+  "area": 2.2,
+  "bx": 1.032,
+  "by": 13.605,
+  "bz": 3.95
+ },
+ {
+  "id": "S01",
+  "name": "S01 Bedroom",
+  "dims": "13'7\" X16'8\"",
+  "area": 21.0,
+  "bx": 13.283,
+  "by": 10.462,
+  "bz": 7.3
+ },
+ {
+  "id": "S02",
+  "name": "S02 Toilet",
+  "dims": "5'-5\"X10''7\"",
+  "area": 5.3,
+  "bx": 14.203,
+  "by": 13.474,
+  "bz": 7.3
+ },
+ {
+  "id": "S03",
+  "name": "S03 Gaming zone",
+  "dims": "",
+  "area": 36.4,
+  "bx": 7.815,
+  "by": 10.519,
+  "bz": 7.3
+ },
+ {
+  "id": "S04",
+  "name": "S04 Home theatre",
+  "dims": "",
+  "area": 27.5,
+  "bx": 2.553,
+  "by": 11.344,
+  "bz": 7.3
+ }
+]
