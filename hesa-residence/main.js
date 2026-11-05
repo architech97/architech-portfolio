@@ -6,7 +6,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(pointer: fine)').matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-  const A = '../hesa-residence/assets/';
+  const A = 'assets/';
   const hasGsap = !!(window.gsap && window.ScrollTrigger);
   if (hasGsap) gsap.registerPlugin(ScrollTrigger);
 

@@ -8,7 +8,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-const A = '../hesa-residence/assets/';
+const A = 'assets/';
 const section = document.getElementById('dwelling');
 const canvas = document.getElementById('scene');
 const labelLayer = document.getElementById('labels');

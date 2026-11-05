@@ -4,7 +4,7 @@
    pointer parallax and film grain. Falls back to the plain images if WebGL is unavailable. */
 import * as THREE from 'three';
 
-const A = '../hesa-residence/assets/';
+const A = 'assets/';
 const hero = document.getElementById('hero');
 const canvas = document.getElementById('hero-gl');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
