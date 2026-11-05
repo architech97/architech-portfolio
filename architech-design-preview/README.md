@@ -6,7 +6,7 @@ Rebranded staging copy of the existing static residence presentation. The origin
 Serve this directory over HTTP with any static host. No build step is required.
 
 ## Branding and contacts
-Uses the original ArchiTECH colour logo and the provided contact details:
+Uses the user-selected Option A, Brass Tech logo from the supplied PNG brand board, with pixel-preserving SVG viewBox wrappers for the horizontal lockup and app icon; these are raster-backed assets, not editable vector masters. Uses the provided contact details:
 - Ar.navneet97@gmail.com
 - +91 7838040375
 - +91 8920821258

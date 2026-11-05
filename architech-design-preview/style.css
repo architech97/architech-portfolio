@@ -21,8 +21,8 @@ h2 em{color:var(--taupe)}
 .kicker{font:400 11px/1.4 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--ink-2);margin-bottom:22px}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
-/* Original ArchiTECH logo, displayed without recolouring. */
-.logo-mask{display:block;width:144px;height:42px;background:url(assets/architech-logo-color.png) left center/contain no-repeat}
+/* User-selected Option A (Brass Tech), extracted from the supplied brand board without redrawing. */
+.logo-mask{display:block;width:144px;height:42px;background:#0b0c0e url(assets/selected-logo-horizontal.svg) center/contain no-repeat;border-radius:4px}
 
 /* loader: the ground-floor plan draws itself */
 .loader{position:fixed;inset:0;z-index:100;background:var(--taupe);color:var(--paper);display:grid;place-content:center;justify-items:center;gap:26px;transition:clip-path 1.2s var(--ease)}
@@ -30,7 +30,7 @@ h2 em{color:var(--taupe)}
 .loader-plan path{fill:rgba(243,238,230,0);stroke:var(--paper);stroke-width:2.2;stroke-dasharray:1;stroke-dashoffset:1;animation:planDraw .9s var(--ease) forwards,planFill .6s ease 1.5s forwards;animation-delay:calc(var(--i) * 18ms),calc(1.2s + var(--i) * 6ms)}
 @keyframes planDraw{to{stroke-dashoffset:0}}
 @keyframes planFill{to{fill:rgba(243,238,230,.92)}}
-.loader-mark{width:min(45vw,230px);height:min(14vw,67px);background:url(assets/architech-logo-color.png) center/contain no-repeat;clip-path:inset(0 100% 0 0);animation:draw 1.1s var(--ease) 1.1s forwards}
+.loader-mark{width:min(45vw,230px);height:min(14vw,67px);background:#0b0c0e url(assets/selected-logo-horizontal.svg) center/contain no-repeat;border-radius:4px;clip-path:inset(0 100% 0 0);animation:draw 1.1s var(--ease) 1.1s forwards}
 @keyframes draw{to{clip-path:inset(0 0 0 0)}}
 .loader-meta{display:flex;gap:28px;font:400 10.5px var(--sans);letter-spacing:.26em;text-transform:uppercase;opacity:.75}
 body:not(.is-loading) .loader{clip-path:inset(0 0 100% 0);pointer-events:none}
