@@ -33,7 +33,7 @@
     measureReel();
     themed = $$('[data-theme], #dwelling').map(el => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, dark: el.dataset.theme === 'dark' }; });
     const lr = nav.getBoundingClientRect(); logoBox = { x: lr.left, y: lr.top, w: lr.width, h: lr.height };
-    ['dwelling', 'plans', 'light', 'studio', 'contact'].forEach(id => { const el = document.getElementById(id); if (el) L['sec_' + id] = el.getBoundingClientRect().top + scrollY; });
+    ['dwelling', 'plans', 'light', 'living', 'studio', 'contact'].forEach(id => { const el = document.getElementById(id); if (el) L['sec_' + id] = el.getBoundingClientRect().top + scrollY; });
     updateLens();
   }
   const progressOf = (k, y) => clamp((y - L[k].top) / (L[k].h - vh));
@@ -75,7 +75,7 @@
     }
     // which section are we in? (drives the dot under the nav link)
     const mid = y + vh * 0.45;
-    const sec = ['contact', 'studio', 'light', 'plans', 'dwelling'].find(id => L['sec_' + id] && mid >= L['sec_' + id]) || null;
+    const sec = ['contact', 'studio', 'living', 'light', 'plans', 'dwelling'].find(id => L['sec_' + id] && mid >= L['sec_' + id]) || null;
     if (sec !== current) { current = sec; secLinks.forEach(a => a.setAttribute('aria-current', String(a.dataset.sec === sec))); }
   }
   function glassUpdate() {
@@ -107,7 +107,7 @@
   const pctTick = () => { pct = Math.min(100, pct + (100 - pct) * 0.06 + 0.4); count.textContent = String(Math.round(pct)).padStart(3, '0'); if (!finished) requestAnimationFrame(pctTick); };
   requestAnimationFrame(pctTick);
   let finished = false, heroLoaded = false;
-  [A + 'asset-025.jpg', A + 'asset-022.jpg'].forEach(src => { const i = new Image(); i.onload = i.onerror = () => { if (i.complete) heroLoaded = true; }; i.src = src; });
+  ['img/hero-day.jpg', 'img/hero-dusk.jpg'].forEach(src => { const i = new Image(); i.onload = i.onerror = () => { if (i.complete) heroLoaded = true; }; i.src = src; });
   let seen = false; try { seen = sessionStorage.getItem('hesa-intro') === '1'; sessionStorage.setItem('hesa-intro', '1'); } catch (e) {}
   if (seen) document.documentElement.classList.add('intro-seen');
   const minTime = reduce || seen ? 350 : 2100;
@@ -324,9 +324,10 @@
   }
 
   /* ---------- lightbox ---------- */
-  const LB = [['asset-025.jpg', 'The arrival, by day'], ['asset-022.jpg', 'The arrival, after dark'], ['asset-024.jpg', 'The curved porch, by day'], ['asset-023.jpg', 'The curved porch, after dark']];
+  // one list for the exterior reel and the living section, in the order they appear on the page
+  const LB = $$('[data-lb]').sort((a, b) => a.dataset.lb - b.dataset.lb).map(b => { const im = $('img', b), cap = b.closest('figure')?.querySelector('figcaption'); const t = cap ? [...cap.childNodes].map(n => n.textContent.trim()).filter(Boolean).join(' · ').replace(/^\d+ · /, '') : im.alt; return [im.getAttribute('src'), t]; });
   const lb = $('#lightbox'), lbImg = $('img', lb), lbCap = $('.lb-cap', lb); let lbi = 0;
-  const lbShow = i => { lbi = (i + LB.length) % LB.length; lbImg.src = A + LB[lbi][0]; lbImg.alt = LB[lbi][1]; lbCap.textContent = `${String(lbi + 1).padStart(2, '0')} / 04 · ${LB[lbi][1]}`; };
+  const lbShow = i => { lbi = (i + LB.length) % LB.length; lbImg.src = LB[lbi][0]; lbImg.alt = LB[lbi][1]; lbCap.textContent = `${String(lbi + 1).padStart(2, '0')} / ${String(LB.length).padStart(2, '0')} · ${LB[lbi][1]}`; };
   $$('[data-lb]').forEach(b => b.addEventListener('click', () => { lbShow(+b.dataset.lb); lb.showModal(); lenis?.stop(); }));
   $('.lb-close', lb).onclick = () => lb.close(); $('.lb-prev', lb).onclick = () => lbShow(lbi - 1); $('.lb-next', lb).onclick = () => lbShow(lbi + 1);
   lb.addEventListener('close', () => lenis?.start());

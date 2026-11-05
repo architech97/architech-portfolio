@@ -66,7 +66,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio || 1, coarse ? 1.25 : 1.5));
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace;   // the shader works in display space, like the JPEGs
 const scene = new THREE.Scene(), cam = new THREE.Camera();
 const uniforms = {
-  tDay: { value: null }, tNight: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uImg: { value: new THREE.Vector2(1264, 848) },
+  tDay: { value: null }, tNight: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uImg: { value: new THREE.Vector2(1520, 1013) },
   uMouse: { value: new THREE.Vector2() }, uDusk: { value: 0 }, uLights: { value: 0 }, uReveal: { value: reduce ? 1 : 0 }, uTime: { value: 0 }, uZoom: { value: 1.12 }
 };
 scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms, depthTest: false })));
@@ -102,7 +102,7 @@ function loop(t) {
 
 (async () => {
   try {
-    const [d, n] = await Promise.all([load(A + 'asset-025.jpg'), load(A + 'asset-022.jpg')]);
+    const [d, n] = await Promise.all([load('img/hero-day.jpg'), load('img/hero-dusk.jpg')]);
     uniforms.tDay.value = d; uniforms.tNight.value = n;
     measure();
     hero.classList.add('has-gl');

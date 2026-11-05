@@ -257,7 +257,7 @@ body.scene-dusk .lbl.level b{color:#efe7da}
 .light-head{max-width:1500px;margin:0 auto 50px;display:grid;grid-template-columns:1fr 1fr;gap:20px 60px;align-items:end}
 .light-head .kicker{grid-column:1/-1;margin:0}
 .light-sub{color:rgba(243,238,230,.68);max-width:30em;justify-self:end}
-.wipe{--x:88%;position:relative;max-width:1500px;margin:0 auto;aspect-ratio:1264/848;overflow:hidden;border-radius:4px;cursor:ew-resize;user-select:none;touch-action:pan-y}
+.wipe{--x:88%;position:relative;max-width:1500px;margin:0 auto;aspect-ratio:1496/997;overflow:hidden;border-radius:4px;cursor:ew-resize;user-select:none;touch-action:pan-y}
 .wipe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
 .wipe-top{position:absolute;inset:0;clip-path:inset(0 calc(100% - var(--x)) 0 0)}
 .wipe-handle{position:absolute;top:0;bottom:0;left:var(--x);width:1px;background:var(--paper)}
@@ -273,13 +273,31 @@ body.scene-dusk .lbl.level b{color:#efe7da}
 .reel-count{font:300 22px var(--serif)}
 .reel-track{display:flex;gap:4vw;padding:0 var(--pad);will-change:transform}
 .reel-item{flex:0 0 auto;width:min(62vw,880px)}
-.reel-item button{display:block;width:100%;overflow:hidden;border-radius:3px;aspect-ratio:1264/848}
+.reel-item button{display:block;width:100%;overflow:hidden;border-radius:3px;aspect-ratio:3/2}
 .reel-item img{width:100%;height:100%;object-fit:cover;transform:scale(1.18);transition:filter .5s}
 .reel-item button:hover img{filter:brightness(1.08)}
 .reel-item figcaption{margin-top:16px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(243,238,230,.7)}
 .reel-intro{width:min(38vw,520px);align-self:center}
 .reel-intro h2 em{color:#d7b78f}
 .reel-intro p{margin-top:24px;color:rgba(243,238,230,.7);max-width:24em}
+
+/* living: a year in the house */
+.life{padding:clamp(100px,16vh,170px) var(--pad);background:var(--paper)}
+.life-head{max-width:1500px;margin:0 auto clamp(48px,8vh,90px);display:grid;grid-template-columns:1fr 1fr;gap:20px 60px;align-items:end}
+.life-head .kicker{grid-column:1/-1;margin:0}
+.life-sub{color:var(--ink-2);max-width:30em;justify-self:end}
+.life-grid{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(40px,7vh,80px) clamp(16px,2.4vw,36px);align-items:start}
+.life-item{margin:0;min-width:0}
+.life-item button{display:block;width:100%;overflow:hidden;border-radius:3px;background:var(--paper-2)}
+.life-item img{width:100%;height:auto}
+.life-item button:hover img{filter:brightness(1.06)}
+.life-item figcaption{margin-top:16px;display:grid;gap:4px;font:300 clamp(20px,1.7vw,26px)/1.25 var(--serif);color:var(--ink)}
+.life-item figcaption span{font:400 11px/1.4 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.l-a{grid-column:1/8}
+.l-b{grid-column:8/13;margin-top:clamp(60px,16vh,200px)}
+.l-c{grid-column:2/7}
+.l-d{grid-column:7/13;margin-top:clamp(40px,10vh,140px)}
+.l-e{grid-column:3/11}
 
 /* studio */
 .studio{padding:clamp(100px,16vh,170px) var(--pad);position:relative}
@@ -363,6 +381,9 @@ body.scene-dusk .lbl.level b{color:#efe7da}
   .plan-tools{flex-wrap:wrap;gap:12px}
   .light-head{grid-template-columns:1fr}.light-sub{justify-self:start}
   .reel-item{width:82vw}.reel-intro{width:78vw}
+  .life-head{grid-template-columns:1fr}.life-sub{justify-self:start}
+  .life-grid{grid-template-columns:1fr;row-gap:44px}
+  .l-a,.l-b,.l-c,.l-d,.l-e{grid-column:1/-1;margin-top:0}
   .services li{grid-template-columns:44px 1fr}
   .services li i{display:none}
   .service-float{display:none}
